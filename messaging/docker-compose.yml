@@ -1,0 +1,60 @@
+services:
+  homeserver:
+    image: matrixconduit/matrix-conduit:v0.8.0
+    restart: unless-stopped
+    volumes:
+      - db:/var/lib/matrix-conduit/
+    environment:
+      CONDUIT_SERVER_NAME: im.ad2ien.dev
+      CONDUIT_DATABASE_PATH: /var/lib/matrix-conduit/
+      CONDUIT_DATABASE_BACKEND: rocksdb
+      CONDUIT_PORT: 6167
+      CONDUIT_MAX_REQUEST_SIZE: 20_000_000 # in bytes, ~20 MB
+      CONDUIT_ALLOW_REGISTRATION: "false"
+      CONDUIT_ALLOW_FEDERATION: "true"
+      CONDUIT_ALLOW_CHECK_FOR_UPDATES: "true"
+      # CONDUIT_TRUSTED_SERVERS: '["matrix.org"]'
+      #CONDUIT_MAX_CONCURRENT_REQUESTS: 100
+      CONDUIT_ADDRESS: 0.0.0.0
+      CONDUIT_CONFIG: "" # Ignore this
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.im.rule=Host(`im.${DOMAIN}`)"
+      - "traefik.http.routers.im.entrypoints=websecure"
+      - "traefik.http.services.im.loadbalancer.server.port=6167"
+      - "traefik.http.routers.im.tls=true"
+      - "traefik.http.routers.im.tls.certresolver=letsencrypt"
+
+  well-known:
+    image: nginx:1.27.1-alpine3.20-slim
+    restart: unless-stopped
+    volumes:
+      - ./matrix.conf:/etc/nginx/conf.d/matrix.conf # the config to serve the .well-known/matrix files
+      - ./nginx/www:/var/www/ # location of the client and server .well-known-files
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.im-wk.rule=Host(`im.${DOMAIN}`) && PathPrefix(`/.well-known`)"
+      - "traefik.http.routers.im-wk.entrypoints=websecure"
+      - "traefik.http.services.im-wk.loadbalancer.server.port=80"
+      - "traefik.http.routers.im-wk.tls=true"
+      - "traefik.http.routers.im-wk.tls.certresolver=letsencrypt"
+
+  element:
+    image: vectorim/element-web:v1.11.77
+    restart: unless-stopped
+    volumes:
+      - ./element-config.json:/app/config.json
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.element.rule=Host(`element.${DOMAIN}`)"
+      - "traefik.http.routers.element.entrypoints=websecure"
+      - "traefik.http.services.element.loadbalancer.server.port=80"
+      - "traefik.http.routers.element.tls=true"
+      - "traefik.http.routers.element.tls.certresolver=letsencrypt"
+volumes:
+  db:
+
+networks:
+  default:
+    external: true
+    name: ${TRAEFIK_NETWORK}
