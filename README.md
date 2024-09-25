@@ -1,5 +1,10 @@
 # A VPS docker compose config
 
+[![Lint workflow status](https://img.shields.io/github/actions/workflow/status/ad2ien/a-vps-config/lint.yml?label=lint&logo=github)](https://ad2ien.github.io/a-vps-config)
+[![Docker](https://img.shields.io/badge/Docker-compose-2496ED.svg?logo=Docker)](https://www.rust-lang.org/)
+[![Gitmoji](https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg)](https://gitmoji.dev)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 ## Stack
 
 - [Docker / docker compose](https://www.docker.com/)
