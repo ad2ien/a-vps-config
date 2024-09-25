@@ -9,16 +9,16 @@ services:
     networks:
       - traefik_net
     labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.portainer.rule=Host(`containers.${DOMAIN}`)"
-        - "traefik.http.routers.portainer.entrypoints=websecure"
-        - "traefik.http.services.portainer.loadbalancer.server.port=9000"
-        - "traefik.http.routers.portainer.tls=true"
-        - "traefik.http.routers.portainer.tls.certresolver=letsencrypt"
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`containers.${DOMAIN}`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.routers.portainer.tls.certresolver=letsencrypt"
 
 volumes:
-  portainer_data:        
+  portainer_data:
 
 networks:
-   traefik_net:
+  traefik_net:
     external: true
