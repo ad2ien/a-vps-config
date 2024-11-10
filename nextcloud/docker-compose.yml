@@ -20,7 +20,7 @@ services:
       - .env
 
   app:
-    image: nextcloud:30.0.0
+    image: nextcloud:30.0.1
     restart: unless-stopped
     links:
       - db-pg
