@@ -1,0 +1,56 @@
+services:
+
+  restic-init:
+    image: mazzolino/restic:${IMAGE_VERSION}
+    entrypoint: [ "restic", "-r", "rclone:${RCLONE_CONFIGURATION_NAME}:${PCLOUD_REPO}", "init" ]
+    volumes:
+      - ./rclone.conf:/root/.config/rclone/rclone.conf:ro
+    restart: no
+  
+  restic-backup:
+    image: mazzolino/restic:${IMAGE_VERSION}
+    entrypoint: [ "restic", "-r", "rclone:${RCLONE_CONFIGURATION_NAME}:${PCLOUD_REPO}", "backup", "/backup-repo" ]
+    environment:
+      RESTIC_REPOSITORY: rclone:${RCLONE_CONFIGURATION_NAME}:${PCLOUD_REPO}
+      RESTIC_PASSWORD: ${RESTIC_PASSWORD}
+    volumes:
+      - ./rclone.conf:/root/.config/rclone/rclone.conf:ro
+      - ${HOST_SOURCE_BACKUP}:/backup-repo
+    restart: no
+
+  restic-list-snapshots:
+    image: mazzolino/restic:${IMAGE_VERSION}
+    environment:
+      RESTIC_REPOSITORY: rclone:${RCLONE_CONFIGURATION_NAME}:${PCLOUD_REPO}
+      RESTIC_PASSWORD: ${RESTIC_PASSWORD}
+    volumes:
+      - ./rclone.conf:/root/.config/rclone/rclone.conf:ro
+    entrypoint: [ "restic", "-r", "rclone:${RCLONE_CONFIGURATION_NAME}:${PCLOUD_REPO}", "snapshots" ]
+    restart: no
+
+  restic-rclone-test:
+    image: mazzolino/restic:${IMAGE_VERSION}
+    volumes:
+      - ./rclone.conf:/root/.config/rclone/rclone.conf:ro
+    entrypoint: [ "rclone", "--version"]
+    restart: no
+
+  restic-restore:
+    image: mazzolino/restic:${IMAGE_VERSION}
+    volumes:
+      - ./rclone.conf:/root/.config/rclone/rclone.conf:ro
+      - ${HOST_SOURCE_BACKUP}:/backup-repo
+    environment:
+      RESTIC_PASSWORD: ${RESTIC_PASSWORD}
+    entrypoint:
+      - "restic"
+      - "-r"
+      - "rclone:${RCLONE_CONFIGURATION_NAME}:${PCLOUD_REPO}"
+      - "restore"
+      - "96aca8bc:/"
+      - "--target"
+      - "/backup-repo"
+      - "--delete"
+      # - "--include"
+      # - "specific_file"
+    restart: no
