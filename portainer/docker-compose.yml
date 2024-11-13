@@ -6,8 +6,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
-    networks:
-      - traefik_net
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.portainer.rule=Host(`containers.${DOMAIN}`)"
@@ -20,5 +18,5 @@ volumes:
   portainer_data:
 
 networks:
-  traefik_net:
-    external: true
+  default:
+    name: ${TRAEFIK_NETWORK}
