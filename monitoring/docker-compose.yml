@@ -64,11 +64,28 @@ services:
       - "traefik.http.routers.grafana.tls=true"
       - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
 
+  promtail:
+    image: grafana/promtail:3.1.0
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log:/var/log:ro
+      - ./promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+    command: -config.file=/etc/promtail/promtail-config.yml
+
+  loki:
+    image: grafana/loki:3.2.1
+    volumes:
+      - ./loki-config.yml:/etc/loki/loki-config.yml:ro
+    expose:
+      - 3100
+    restart: unless-stopped
+    command: -config.file=/etc/loki/loki-config.yml
+
 volumes:
   prometheus_data: {}
   grafana_data:
 
 networks:
   default:
-    external: true
     name: ${TRAEFIK_NETWORK}
