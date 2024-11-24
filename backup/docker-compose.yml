@@ -1,5 +1,5 @@
 services:
-  backup:
+  volumes-backup:
     image: mazzolino/restic:${IMAGE_VERSION}
     environment:
       BACKUP_CRON: ${BACKUP_CRON}
@@ -11,3 +11,17 @@ services:
     volumes:
       - ./rclone.conf:/root/.config/rclone/rclone.conf:ro
       - ${HOST_SOURCE_BACKUP}:/backup-repo
+
+  stack-conf-backup:
+    image: mazzolino/restic:${IMAGE_VERSION}
+    environment:
+      BACKUP_CRON: ${BACKUP_CRON}
+      RUN_ON_STARTUP: "true"
+      RESTIC_REPOSITORY: rclone:${RCLONE_CONFIGURATION_NAME}:${PCLOUD_STACK_REPO}
+      RESTIC_PASSWORD: ${RESTIC_PASSWORD}
+      RESTIC_BACKUP_SOURCES: /backup-repo
+      RESTIC_FORGET_ARGS: --keep-daily 5 --keep-weekly 4 --keep-monthly 2
+      RESTIC_BACKUP_ARGS: --exclude ".git"
+    volumes:
+      - ./rclone.conf:/root/.config/rclone/rclone.conf:ro
+      - ${HOST_STACK_CONF_PATH}:/backup-repo:ro

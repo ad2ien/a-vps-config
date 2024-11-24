@@ -2,7 +2,7 @@
 
 ## Make rclone conf
 
-on a internet browser available environment : <https://rclone.org/pcloud/>
+On an internet browser available environment : <https://rclone.org/pcloud/>
 
 ```bash
 rclone config
@@ -14,16 +14,31 @@ Copy it in the current folder
 
 ### Alias
 
-Make an alias for convenience
+Make aliases for convenience:
 
 ```bash
-alias restic-util="docker compose -f docker-compose-utils.yml run --rm"
+alias stackrestic="source .env && docker run \
+-v ${HOST_STACK_CONF_PATH}:/backup-repo \
+-v ./rclone.conf:/root/.config/rclone/rclone.conf:ro \
+-e RESTIC_REPOSITORY=rclone:${RCLONE_CONFIGURATION_NAME}:${PCLOUD_STACK_REPO} \
+-e RESTIC_PASSWORD=${RESTIC_PASSWORD} \
+--rm --env-file .env mazzolino/restic:${IMAGE_VERSION}"
+```
+
+```bash
+alias volumerestic="source .env && docker run \
+-v ${HOST_SOURCE_BACKUP}:/backup-repo \
+-v ./rclone.conf:/root/.config/rclone/rclone.conf:ro \
+-e RESTIC_REPOSITORY=rclone:${RCLONE_CONFIGURATION_NAME}:${PCLOUD_REPO} \
+-e RESTIC_PASSWORD=${RESTIC_PASSWORD} \
+--rm --env-file .env mazzolino/restic:${IMAGE_VERSION}"
 ```
 
 ## Init Restic Repo
 
 ```bash
-restic-util restic-init
+stackrestic init
+volumerestic init
 ```
 
 fill `.env` with password
@@ -37,7 +52,13 @@ docker compose up -d
 ## List Snapshots
 
 ```bash
-restic-util restic-list-snapshots
+stackrestic snapshots
+```
+
+## List Snapshots files
+
+```bash
+stackrestic ls --long SNAPHOT_ID
 ```
 
 ## Restore
@@ -46,5 +67,5 @@ restic-util restic-list-snapshots
 - Edit restic-restore service depending on what you want to restore
 
 ```bash
-restic-util restic-restore
+stackrestic restore --include /path/to/file <ID>
 ```
