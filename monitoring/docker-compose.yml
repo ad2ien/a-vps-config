@@ -18,6 +18,10 @@ services:
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
     container_name: cadvisor
+    command:
+      - --docker_only
+      - --enable_metrics=app,cpu,disk,diskIO,memory,network,process
+      - --housekeeping_interval=30s
     expose:
       - 8080
     volumes:
