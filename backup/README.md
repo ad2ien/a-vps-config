@@ -64,8 +64,8 @@ stackrestic ls --long SNAPHOT_ID
 ## Restore
 
 - Make sur to have all the input before doing anything <https://restic.readthedocs.io/en/stable/050_restore.html>
-- Edit restic-restore service depending on what you want to restore
+- Edit restic-restore service depending on what you want to restore. Ex:
 
 ```bash
-stackrestic restore --include /path/to/file <ID>
+volumerestic restore --include /backup-repo/VOLUME/_data/config --target / SNAPHOT_ID
 ```
