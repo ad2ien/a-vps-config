@@ -2,12 +2,12 @@ services:
   registry:
     image: registry:2
     environment:
-      REGISTRY_AUTH: ${REGISTRY_AUTH}
+      REGISTRY_AUTH_HTPASSWD_REALM: "ad2ien Registry Realm"
+      REGISTRY_AUTH: htpasswd
       REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-      REGISTRY_AUTH_HTPASSWD_REALM: ${REGISTRY_AUTH_HTPASSWD_REALM}
     volumes:
       - registry:/var/lib/registry
-      - ./auth/registry.password:/auth/registry.password:ro
+      - ./auth/htpasswd:/auth/registry.password:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.registry.rule=Host(`registry.${DOMAIN}`)"
