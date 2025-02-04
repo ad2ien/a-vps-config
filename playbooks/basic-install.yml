@@ -1,0 +1,6 @@
+---
+- name: Install and configure VPS
+  hosts: ad2ien.dev
+  become: yes
+  roles:
+    - basic-install

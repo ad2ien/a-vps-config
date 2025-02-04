@@ -24,6 +24,20 @@
 - docker / docker compose installed
 - a domain pointing to this VPS
 
+## Deployment
+
+- [Ansible](https://docs.ansible.com/)
+
+Setup vps configuration in `host_vars`
+
+Then
+
+```bash
+ansible-playbook playbooks/basic-install.yml -i inventory/hosts.yml --diff
+```
+
+⚠️ IN PROGRESS
+
 ## use
 
 - configure when needed depending on the service
