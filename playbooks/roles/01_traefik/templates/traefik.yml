@@ -37,7 +37,7 @@ entryPoints:
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: YOUR_EMAIL
+      email: {{ admin_email }}
       caserver: https://acme-v02.api.letsencrypt.org/directory
       storage: /etc/traefik/certs/acme.json
       httpChallenge:
@@ -156,9 +156,9 @@ providers:
     # Default host rule.
     #
     # Optional
-    # Default: "Host(`{{ normalize .Name }}`)"
+    # Default: "Host(`{ { normalize .Name } }`)"
     #
-#    defaultRule: Host(`{{ normalize .Name }}.docker.localhost`)
+    #    defaultRule: Host(`{ { normalize .Name } }.docker.localhost`)
 
     # Expose containers by default in traefik
     #

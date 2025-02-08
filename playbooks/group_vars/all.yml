@@ -1,2 +1,5 @@
 ---
 app_path: /srv
+traefik_network: traefik_net
+domain: ad2ien.dev
+

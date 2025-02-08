@@ -1,0 +1,22 @@
+---
+- name: Create /srv/traefik directory if it doesn't exist
+  file:
+    path: /{{ app_path }}/traefik
+    state: directory
+
+- name: Copy traefik template files to /srv/traefik
+  template:
+    src: "{{ item }}"
+    dest: /srv/traefik/
+    mode: "0644"
+  loop:
+    - docker-compose.yml
+    - traefik.yml
+
+- name: is Traefik running ?
+  shell: docker ps | grep traefik | awk '{print $1}'
+  register: traefik
+
+- name: Start Traefik
+  shell: docker-compose -f /srv/traefik/docker-compose.yml up -d
+  when: traefik.stdout == ""
