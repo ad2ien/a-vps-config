@@ -92,4 +92,5 @@ volumes:
 
 networks:
   default:
+    external: true
     name: ${TRAEFIK_NETWORK}

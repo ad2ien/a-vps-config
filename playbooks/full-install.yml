@@ -10,3 +10,5 @@
       tags: basic
     - role: 01_traefik
       tags: traefik
+    - role: 02_monitoring
+      tags: monitoring

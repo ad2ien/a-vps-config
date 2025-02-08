@@ -1,0 +1,30 @@
+---
+- name: Create /srv/monitoring
+  file:
+    path: /{{ app_path }}/monitoring
+    state: directory
+
+- name: Copy monitoring template files to /srv/monitoring
+  template:
+    src: "{{ item }}"
+    dest: /srv/monitoring/{{ item | replace('.template', '') }}
+    mode: "0644"
+  loop:
+    - docker-compose.yml
+    - grafana.ini
+    - loki-config.yml
+    - promtail-config.yml
+    - prometheus.yml
+    - .env.template
+  register: monitoring_config
+
+- name: Stop monitoring
+  community.docker.docker_compose_v2:
+    project_src: /srv/monitoring
+    state: absent
+  when: monitoring_config.changed
+
+- name: Start monitoring
+  community.docker.docker_compose_v2:
+    project_src: /srv/monitoring
+    state: present
