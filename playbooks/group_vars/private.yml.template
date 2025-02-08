@@ -1,0 +1,10 @@
+admin_email:
+grafana_admin_password:
+smtp_host:
+smtp_user:
+smtp_password:
+
+restic_password:
+restic_pcloud_repo:
+restic_pcloud_stack:
+bkp_pcloud_token:

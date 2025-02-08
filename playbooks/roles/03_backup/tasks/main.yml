@@ -1,0 +1,27 @@
+---
+- name: Create /srv/backup
+  file:
+    path: /{{ app_path }}/backup
+    state: directory
+
+- name: Copy backup template files to /srv/backup
+  template:
+    src: "{{ item }}"
+    dest: /srv/backup/{{ item | replace('.template', '') }}
+    mode: "0644"
+  loop:
+    - docker-compose.yml
+    - rclone.conf
+    - .env.template
+  register: backup_config
+
+- name: Stop backup
+  community.docker.docker_compose_v2:
+    project_src: /srv/backup
+    state: absent
+  when: backup_config.changed
+
+- name: Start backup
+  community.docker.docker_compose_v2:
+    project_src: /srv/backup
+    state: present

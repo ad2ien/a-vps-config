@@ -12,3 +12,5 @@
       tags: traefik
     - role: 02_monitoring
       tags: monitoring
+    - role: 03_backup
+      tags: backup
