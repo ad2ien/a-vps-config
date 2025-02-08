@@ -7,16 +7,21 @@
 - name: Copy traefik template files to /srv/traefik
   template:
     src: "{{ item }}"
-    dest: /srv/traefik/
+    dest: /srv/traefik/{{ item | replace('.template', '') }}
     mode: "0644"
   loop:
     - docker-compose.yml
     - traefik.yml
+    - .env.template
+  register: traefik_config
 
-- name: is Traefik running ?
-  shell: docker ps | grep traefik | awk '{print $1}'
-  register: traefik
+- name: Stop Traefik
+  community.docker.docker_compose_v2:
+    project_src: /srv/traefik
+    state: absent
+  when: traefik_config.changed
 
 - name: Start Traefik
-  shell: docker-compose -f /srv/traefik/docker-compose.yml up -d
-  when: traefik.stdout == ""
+  community.docker.docker_compose_v2:
+    project_src: /srv/traefik
+    state: present
