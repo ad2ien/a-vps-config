@@ -1,0 +1,67 @@
+---
+- name: Update and upgrade packages
+  apt:
+    name: "*"
+    state: latest
+
+- name: Install packages
+  apt:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - ca-certificates
+    - curl
+
+- name: debug display inventory_hostname
+  ansible.builtin.debug:
+    msg: System {{ inventory_hostname }}
+
+- name: Set hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Configure sshd
+  lineinfile:
+    path: "/etc/ssh/sshd_config"
+    regex: "^(#)?{{item.key}}"
+    line: "{{item.key}} {{item.value}}"
+    state: present
+  loop:
+    - { key: "PermitRootLogin", value: "no" }
+    - { key: "PasswordAuthentication", value: "no" }
+    - { key: "X11Forwarding", value: "no" }
+    - { key: "PermitEmptyPasswords", value: "no" }
+  notify:
+    - restart sshd
+
+- name: Allow everything and enable UFW
+  community.general.ufw:
+    state: enabled
+    policy: allow
+
+- name: Fail2ban
+  apt:
+    name: "fail2ban"
+    state: latest
+
+- name: Add Docker GPG apt Key
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+
+- name: Add Docker Repository
+  apt_repository:
+    repo: deb https://download.docker.com/linux/debian bookworm stable
+    filename: docker
+    state: present
+
+- name: Update apt and install docker-ce
+  apt:
+    name: docker-ce
+    state: latest
+    update_cache: true
+
+- name: Create apps server folder
+  file:
+    path: "{{ app_path }}"
+    state: directory
