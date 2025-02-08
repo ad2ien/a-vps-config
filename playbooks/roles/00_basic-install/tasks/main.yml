@@ -27,10 +27,10 @@
     line: "{{item.key}} {{item.value}}"
     state: present
   loop:
-    - { key: "PermitRootLogin", value: "no" }
-    - { key: "PasswordAuthentication", value: "no" }
-    - { key: "X11Forwarding", value: "no" }
-    - { key: "PermitEmptyPasswords", value: "no" }
+    - {key: "PermitRootLogin", value: "no"}
+    - {key: "PasswordAuthentication", value: "no"}
+    - {key: "X11Forwarding", value: "no"}
+    - {key: "PermitEmptyPasswords", value: "no"}
   notify:
     - restart sshd
 

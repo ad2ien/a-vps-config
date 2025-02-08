@@ -37,7 +37,7 @@ entryPoints:
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: {{ admin_email }}
+      email: {{admin_email}}
       caserver: https://acme-v02.api.letsencrypt.org/directory
       storage: /etc/traefik/certs/acme.json
       httpChallenge:
