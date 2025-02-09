@@ -1,0 +1,35 @@
+---
+# Docker registry
+
+- name: Create /srv/registry
+  file:
+    path: /{{ app_path }}/registry
+    state: directory
+  register: registry_folder
+
+- name: Copy template files to /srv/registry
+  template:
+    src: "{{ item }}"
+    dest: /srv/registry/{{ item | replace('.template', '') }}
+    mode: "0644"
+  loop:
+    - docker-compose.yml
+    - .env.template
+  register: registry_config
+
+- name: Run authentification setup
+  ansible.builtin.script:
+    chdir: /srv/registry
+    cmd: files/setup.sh
+  when: registry_folder.changed
+
+- name: Stop registry stack
+  community.docker.docker_compose_v2:
+    project_src: /srv/registry
+    state: absent
+  when: registry_config.changed
+
+- name: Start registry stack
+  community.docker.docker_compose_v2:
+    project_src: /srv/registry
+    state: present

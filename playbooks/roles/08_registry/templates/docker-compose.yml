@@ -2,7 +2,7 @@ services:
   registry:
     image: registry:2
     environment:
-      REGISTRY_AUTH_HTPASSWD_REALM: "ad2ien Registry Realm"
+      REGISTRY_AUTH_HTPASSWD_REALM: "Registry Realm"
       REGISTRY_AUTH: htpasswd
       REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
     volumes:
@@ -10,7 +10,7 @@ services:
       - ./auth/htpasswd:/auth/registry.password:ro
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.registry.rule=Host(`registry.${DOMAIN}`)"
+      - "traefik.http.routers.registry.rule=Host(`{{registry_sub_domain}}.${DOMAIN}`)"
       - "traefik.http.routers.registry.entrypoints=websecure"
       - "traefik.http.services.registry.loadbalancer.server.port=5000"
       - "traefik.http.routers.registry.tls=true"
@@ -23,7 +23,7 @@ services:
       ENV_DOCKER_REGISTRY_PORT: 5000
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.registry-ui.rule=Host(`registry-ui.${DOMAIN}`)"
+      - "traefik.http.routers.registry-ui.rule=Host(`{{registry_ui_sub_domain}}.${DOMAIN}`)"
       - "traefik.http.routers.registry-ui.entrypoints=websecure"
       - "traefik.http.services.registry-ui.loadbalancer.server.port=80"
       - "traefik.http.routers.registry-ui.tls=true"

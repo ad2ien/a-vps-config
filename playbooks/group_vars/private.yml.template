@@ -10,3 +10,6 @@ restic_pcloud_stack:
 bkp_pcloud_token:
 
 nextcloud_db_password:
+
+registry_pw:
+registry_user:

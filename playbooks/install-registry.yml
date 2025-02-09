@@ -1,0 +1,10 @@
+---
+- name: Install Registry
+  hosts: ad2ien.dev
+  become: yes
+  vars_files:
+    - group_vars/all.yml
+    - group_vars/private.yml
+  roles:
+    - role: 08_registry
+      tags: registry
