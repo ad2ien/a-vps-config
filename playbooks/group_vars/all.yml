@@ -5,3 +5,5 @@ domain: ad2ien.dev
 
 nexcloud_sub_domain: nextcloud
 wireguard_sub_domain: wireguard
+messaging_sub_domain: im
+element_sub_domain: element

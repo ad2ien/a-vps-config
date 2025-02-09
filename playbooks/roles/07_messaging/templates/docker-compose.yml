@@ -5,7 +5,7 @@ services:
     volumes:
       - db:/var/lib/matrix-conduit/
     environment:
-      CONDUIT_SERVER_NAME: im.ad2ien.dev
+      CONDUIT_SERVER_NAME: "{{messaging_sub_domain}}.{{domain}}"
       CONDUIT_DATABASE_PATH: /var/lib/matrix-conduit/
       CONDUIT_DATABASE_BACKEND: rocksdb
       CONDUIT_PORT: 6167
@@ -19,7 +19,7 @@ services:
       CONDUIT_CONFIG: "" # Ignore this
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.im.rule=Host(`im.${DOMAIN}`)"
+      - "traefik.http.routers.im.rule=Host(`{{messaging_sub_domain}}.${DOMAIN}`)"
       - "traefik.http.routers.im.entrypoints=websecure"
       - "traefik.http.services.im.loadbalancer.server.port=6167"
       - "traefik.http.routers.im.tls=true"
@@ -33,7 +33,7 @@ services:
       - ./nginx/www:/var/www/ # location of the client and server .well-known-files
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.im-wk.rule=Host(`im.${DOMAIN}`) && PathPrefix(`/.well-known`)"
+      - "traefik.http.routers.im-wk.rule=Host(`{{messaging_sub_domain}}.${DOMAIN}`) && PathPrefix(`/.well-known`)"
       - "traefik.http.routers.im-wk.entrypoints=websecure"
       - "traefik.http.services.im-wk.loadbalancer.server.port=80"
       - "traefik.http.routers.im-wk.tls=true"
@@ -46,7 +46,7 @@ services:
       - ./element-config.json:/app/config.json
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.element.rule=Host(`element.${DOMAIN}`)"
+      - "traefik.http.routers.element.rule=Host(`{{element_sub_domain}}.${DOMAIN}`)"
       - "traefik.http.routers.element.entrypoints=websecure"
       - "traefik.http.services.element.loadbalancer.server.port=80"
       - "traefik.http.routers.element.tls=true"

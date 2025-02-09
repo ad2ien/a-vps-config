@@ -1,0 +1,30 @@
+---
+# Matrix messaging with Conduit server and Element webapp
+
+- name: Create /srv/messaging
+  file:
+    path: /{{ app_path }}/messaging
+    state: directory
+
+- name: Copy template files to /srv/messaging
+  template:
+    src: "{{ item }}"
+    dest: /srv/messaging/{{ item | replace('.template', '') }}
+    mode: "0644"
+  loop:
+    - docker-compose.yml
+    - element-config.json
+    - matrix.conf
+    - .env.template
+  register: messaging_config
+
+- name: Stop messaging stack
+  community.docker.docker_compose_v2:
+    project_src: /srv/messaging
+    state: absent
+  when: messaging_config.changed
+
+- name: Start messaging stack
+  community.docker.docker_compose_v2:
+    project_src: /srv/messaging
+    state: present
