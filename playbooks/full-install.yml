@@ -14,5 +14,7 @@
       tags: monitoring
     - role: 03_backup
       tags: backup
-    - role: 04_nextcloud
+    - role: 04_portainer
+      tags: portainer
+    - role: 05_nextcloud
       tags: nextcloud

@@ -1,0 +1,26 @@
+---
+- name: Create /srv/portainer
+  file:
+    path: /{{ app_path }}/portainer
+    state: directory
+
+- name: Copy portainer template files to /srv/portainer
+  template:
+    src: "{{ item }}"
+    dest: /srv/portainer/{{ item | replace('.template', '') }}
+    mode: "0644"
+  loop:
+    - docker-compose.yml
+    - .env.template
+  register: portainer_config
+
+- name: Stop portainer
+  community.docker.docker_compose_v2:
+    project_src: /srv/portainer
+    state: absent
+  when: portainer_config.changed
+
+- name: Start portainer
+  community.docker.docker_compose_v2:
+    project_src: /srv/portainer
+    state: present
