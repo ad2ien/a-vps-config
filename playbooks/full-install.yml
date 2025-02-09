@@ -18,3 +18,5 @@
       tags: portainer
     - role: 05_nextcloud
       tags: nextcloud
+    - role: 06_wireguard
+      tags: wireguard,vpn

@@ -26,11 +26,11 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.openvpn.rule=Host(`wireguard.$DOMAIN`)"
-      - "traefik.http.routers.openvpn.entrypoints=websecure"
-      - "traefik.http.services.openvpn.loadbalancer.server.port=943"
-      - "traefik.http.routers.openvpn.tls=true"
-      - "traefik.http.routers.openvpn.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.wireguard.rule=Host(`{{wireguard_sub_domain}}.$DOMAIN`)"
+      - "traefik.http.routers.wireguard.entrypoints=websecure"
+      - "traefik.http.services.wireguard.loadbalancer.server.port=943"
+      - "traefik.http.routers.wireguard.tls=true"
+      - "traefik.http.routers.wireguard.tls.certresolver=letsencrypt"
 
 networks:
   default:

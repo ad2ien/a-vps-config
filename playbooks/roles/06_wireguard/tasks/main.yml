@@ -1,0 +1,26 @@
+---
+- name: Create /srv/vpn
+  file:
+    path: /{{ app_path }}/vpn
+    state: directory
+
+- name: Copy wireguard template files to /srv/vpn
+  template:
+    src: "{{ item }}"
+    dest: /srv/vpn/{{ item | replace('.template', '') }}
+    mode: "0644"
+  loop:
+    - docker-compose.yml
+    - .env.template
+  register: wireguard_config
+
+- name: Stop wireguard
+  community.docker.docker_compose_v2:
+    project_src: /srv/vpn
+    state: absent
+  when: wireguard_config.changed
+
+- name: Start wireguard
+  community.docker.docker_compose_v2:
+    project_src: /srv/vpn
+    state: present

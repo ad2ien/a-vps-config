@@ -33,10 +33,15 @@ Setup vps configuration in `host_vars`
 Then
 
 ```bash
-ansible-playbook playbooks/basic-install.yml -i inventory/hosts.yml --diff
+ansible-playbook playbooks/full-install.yml -i inventory/hosts.yml --diff
 ```
 
 ⚠️ IN PROGRESS
+
+### TODO
+
+- [ ] playbook to manage wireguard conf and certificates
+- [ ] update and fix images versions
 
 ## use
 
