@@ -1,0 +1,26 @@
+---
+- name: Create /srv/nextcloud
+  file:
+    path: /{{ app_path }}/nextcloud
+    state: directory
+
+- name: Copy nextcloud template files to /srv/nextcloud
+  template:
+    src: "{{ item }}"
+    dest: /srv/nextcloud/{{ item | replace('.template', '') }}
+    mode: "0644"
+  loop:
+    - docker-compose.yml
+    - .env.template
+  register: nextcloud_config
+
+- name: Stop nextcloud
+  community.docker.docker_compose_v2:
+    project_src: /srv/nextcloud
+    state: absent
+  when: nextcloud_config.changed
+
+- name: Start nextcloud
+  community.docker.docker_compose_v2:
+    project_src: /srv/nextcloud
+    state: present
