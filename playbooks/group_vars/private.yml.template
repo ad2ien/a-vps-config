@@ -8,3 +8,5 @@ restic_password:
 restic_pcloud_repo:
 restic_pcloud_stack:
 bkp_pcloud_token:
+
+nextcloud_db_password:
