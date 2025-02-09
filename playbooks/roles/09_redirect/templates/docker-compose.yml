@@ -1,0 +1,16 @@
+services:
+  nginx:
+    image: nginx:1.27.2
+    restart: unless-stopped
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.presta.rule=Host(`{{redirection_sub_domain}}.${DOMAIN}`)"
+      - "traefik.http.routers.presta.entrypoints=websecure"
+      - "traefik.http.services.presta.loadbalancer.server.port=80"
+      - "traefik.http.routers.presta.tls.certresolver=letsencrypt"
+networks:
+  default:
+    external: true
+    name: ${TRAEFIK_NETWORK}

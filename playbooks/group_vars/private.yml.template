@@ -13,3 +13,6 @@ nextcloud_db_password:
 
 registry_pw:
 registry_user:
+
+redirection_sub_domain:
+redirection_url:

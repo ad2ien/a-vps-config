@@ -22,3 +22,5 @@
       tags: wireguard,vpn
     - role: 07_messaging
       tags: messaging
+    - role: 09_redirect
+      tags: redirect

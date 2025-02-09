@@ -1,0 +1,36 @@
+---
+# An nginx redirection
+
+- name: Create /srv/presta-redirect
+  file:
+    path: /{{ app_path }}/presta-redirect
+    state: directory
+  register: redirect_folder
+
+- name: Copy template files to /srv/presta-redirect
+  template:
+    src: "{{ item }}"
+    dest: /srv/presta-redirect/{{ item | replace('.template', '') }}
+    mode: "0644"
+  loop:
+    - docker-compose.yml
+    - .env.template
+    - nginx.conf
+  register: redirect_config
+
+- name: Run authentification setup
+  ansible.builtin.script:
+    chdir: /srv/presta-redirect
+    cmd: files/setup.sh
+  when: redirect_folder.changed
+
+- name: Stop redirect stack
+  community.docker.docker_compose_v2:
+    project_src: /srv/presta-redirect
+    state: absent
+  when: redirect_config.changed
+
+- name: Start redirect stack
+  community.docker.docker_compose_v2:
+    project_src: /srv/presta-redirect
+    state: present
