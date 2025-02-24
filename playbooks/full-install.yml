@@ -24,3 +24,5 @@
       tags: messaging
     - role: 09_redirect
       tags: redirect
+    - role: 10_video-server
+      tags: mediamtx

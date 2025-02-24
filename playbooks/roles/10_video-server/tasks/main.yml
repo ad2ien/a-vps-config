@@ -1,0 +1,68 @@
+---
+# MediaMtx server
+
+- name: Create /srv/mediamtx
+  file:
+    path: "{{ app_path }}/mediamtx"
+    state: directory
+    owner: "{{ linux_user }}"
+  register: mediamtx_folder
+
+- name: Copy template files to /srv/mediamtx
+  template:
+    src: "{{ item }}"
+    dest: /srv/mediamtx/{{ item | replace('.template', '') }}
+    mode: "0644"
+    owner: "{{ linux_user }}"
+  loop:
+    - docker-compose.yml
+    - mediamtx.yml
+  register: mediamtx_config
+
+- name: Create certs folder
+  file:
+    path: "{{ app_path }}/mediamtx/certs"
+    state: directory
+    owner: "{{ linux_user }}"
+
+- name: Create private key file
+  openssl_privatekey:
+    path: "{{ app_path }}/mediamtx/certs/rtmp-server.key"
+    size: 2048
+
+- name: Create CSR
+  openssl_csr:
+    path: "{{ app_path }}/mediamtx/certs/rtmp-server.csr"
+    privatekey_path: "{{ app_path }}/mediamtx/certs/rtmp-server.key"
+    country_name: FR
+    organization_name: "{{ org_name }}"
+    common_name: "{{ domain }}"
+    email_address: "{{ admin_email  }}"
+
+- name: Generate self-signed SSL certificate
+  openssl_certificate:
+    path: "{{ app_path }}/mediamtx/certs/rtmp-server.crt"
+    privatekey_path: "{{ app_path }}/mediamtx/certs/rtmp-server.key"
+    csr_path: "{{ app_path }}/mediamtx/certs/rtmp-server.csr"
+    provider: selfsigned
+  register: mediamtx_cert
+
+- name: Open ports
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop:
+    - '1935'
+    - '1936'
+
+- name: Stop mediamtx container
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_path }}/mediamtx"
+    state: absent
+  when: mediamtx_config.changed or mediamtx_cert.changed
+
+- name: Start mediamtx stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_path }}/mediamtx"
+    state: present

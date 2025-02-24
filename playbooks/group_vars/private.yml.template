@@ -16,3 +16,6 @@ registry_user:
 
 redirection_sub_domain:
 redirection_url:
+
+mediamtx_user: 
+mediamtx_password:
