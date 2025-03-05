@@ -20,7 +20,7 @@ services:
       - .env
 
   app:
-    image: nextcloud:30.0.1
+    image: nextcloud:30.0.6
     restart: unless-stopped
     links:
       - db-pg
@@ -33,6 +33,7 @@ services:
       - POSTGRES_USER=nextcloud
       - REDIS_HOST=${REDIS_HOST}
       - NEXTCLOUD_TRUSTED_DOMAINS=$DOMAIN
+      - TRUSTED_PROXIES={{traefik_net_subnet}}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nextcloud.rule=Host(`{{nexcloud_sub_domain}}.${DOMAIN}`)"
@@ -40,6 +41,10 @@ services:
       - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
       - "traefik.http.routers.nextcloud.tls=true"
       - "traefik.http.routers.nextcloud.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.nextcloud.middlewares=nextcloud-redirectregex"
+      - "traefik.http.middlewares.nextcloud-redirectregex.redirectregex.permanent=true"
+      - "traefik.http.middlewares.nextcloud-redirectregex.redirectregex.regex=https://(.*)/.well-known/(?:card|cal)dav"
+      - "traefik.http.middlewares.nextcloud-redirectregex.redirectregex.replacement=https://$${1}/remote.php/dav"
 
   # onlyoffice-documentserver:
   #   image: onlyoffice/documentserver:8.1.3

@@ -4,6 +4,15 @@
     path: /{{ app_path }}/nextcloud
     state: directory
 
+- name: Get traefik_net network
+  docker_network_info:
+    name: traefik_net
+  register: traefik_net_info
+
+- name: subnet of traefik_net network
+  ansible.builtin.set_fact:
+    traefik_net_subnet:  "{{ (traefik_net_info.network.IPAM.Config[0].Subnet) }}"
+
 - name: Copy nextcloud template files to /srv/nextcloud
   template:
     src: "{{ item }}"
