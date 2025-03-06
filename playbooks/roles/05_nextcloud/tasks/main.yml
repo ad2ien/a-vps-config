@@ -11,7 +11,7 @@
 
 - name: subnet of traefik_net network
   ansible.builtin.set_fact:
-    traefik_net_subnet:  "{{ (traefik_net_info.network.IPAM.Config[0].Subnet) }}"
+    traefik_net_subnet: "{{(traefik_net_info.network.IPAM.Config[0].Subnet)}}"
 
 - name: Copy nextcloud template files to /srv/nextcloud
   template:
@@ -33,3 +33,10 @@
   community.docker.docker_compose_v2:
     project_src: /srv/nextcloud
     state: present
+
+- name: Add Nextcloud Cron job
+  ansible.builtin.cron:
+    name: Nextcloud jobs
+    hour: 2
+    minute: 13
+    job: docker compose -f {{app_path}}/nextcloud/docker-compose.yml exec -u www-data app php cron.php
