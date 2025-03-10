@@ -1,0 +1,20 @@
+services:
+  frps:
+    image: snowdreamtech/frps:alpine
+    restart: unless-stopped
+    volumes:
+      - ./frps.toml:/etc/frp/frps.toml:ro
+    ports:
+      - "{{frps_port}}:{{frps_port}}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frps1.rule=Host(`{{frps_subdomain}}.${DOMAIN}`)"
+      - "traefik.http.routers.frps1.entrypoints=websecure"
+      - "traefik.http.services.frps1.loadbalancer.server.port={{vhost_frps_port}}"
+      - "traefik.http.routers.frps1.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.frps1.middlewares=basicauth1"
+      - "traefik.http.middlewares.basicauth1.basicauth.users={{frps_basic_auth}}"
+networks:
+  default:
+    external: true
+    name: ${TRAEFIK_NETWORK}

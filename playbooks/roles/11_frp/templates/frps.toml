@@ -1,0 +1,5 @@
+bindPort = {{frps_port}}
+vhostHTTPPort = 7080
+
+auth.method = "token"
+auth.token = "{{frps_auth_token}}"

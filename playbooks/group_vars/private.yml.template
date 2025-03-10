@@ -19,3 +19,7 @@ redirection_url:
 
 mediamtx_user: 
 mediamtx_password:
+
+frps_auth_token:
+# echo $(htpasswd -nB user) | sed -e s/\\$/\\$\\$/g
+frps_basic_auth:

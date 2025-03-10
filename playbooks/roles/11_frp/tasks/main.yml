@@ -1,0 +1,37 @@
+---
+# frps server
+
+- name: Create /srv/frps
+  file:
+    path: "{{ app_path }}/frps"
+    state: directory
+    owner: "{{ linux_user }}"
+
+- name: Copy template files to /srv/frps
+  template:
+    src: "{{ item }}"
+    dest: /srv/frps/{{ item | replace('.template', '') }}
+    mode: "0644"
+    owner: "{{ linux_user }}"
+  loop:
+    - docker-compose.yml
+    - frps.toml
+    - .env.template
+  register: frps_config
+
+- name: Open port
+  community.general.ufw:
+    rule: allow
+    port: "{{frps_port}}"
+    proto: tcp
+
+- name: Stop frps container
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_path }}/frps"
+    state: absent
+  when: frps_config.changed
+
+- name: Start frps stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_path }}/frps"
+    state: present
