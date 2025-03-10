@@ -34,9 +34,6 @@ Configure device
 
   wget https://github.com/fatedier/frp/releases/download/v${FRP_VERSION}/frp_${FRP_VERSION}_linux_arm.tar.gz 
   tar -xvf frp_${FRP_VERSION}_linux_arm.tar.gz
-
-  cd frp_${FRP_VERSION}_linux_arm
- 
   ```
 
 - Config `./frpc.toml` file
@@ -46,6 +43,9 @@ Configure device
   serverAddr = "x.x.x.x"
   # server port
   serverPort = {{frps_port}}
+
+  auth.method = "token"
+  auth.token = "{{frps_auth_token}}"
   
   # configure your local server
   [[proxies]]
@@ -53,6 +53,7 @@ Configure device
   type = "http"
   localIP = "127.0.0.1"
   localPort = 8080
+  customDomains = ["{{frps_subdomain}}.domain"]
   ```
 
 Full configuration : <https://github.com/fatedier/frp/blob/dev/conf/frpc_full_example.toml>
@@ -60,7 +61,7 @@ Full configuration : <https://github.com/fatedier/frp/blob/dev/conf/frpc_full_ex
 - run
 
   ```bash
-  ./frpc -c ./frpc.toml
+  nohup ./frpc -c ./frpc.toml >/dev/null 2>&1 &
   ```
 
 ### TODO
