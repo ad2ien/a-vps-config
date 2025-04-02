@@ -28,3 +28,5 @@
       tags: mediamtx
     - role: 11_frp
       tags: frp
+    - role: 12_static-files
+      tags: static-files

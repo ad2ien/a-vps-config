@@ -1,0 +1,24 @@
+services:
+  caddy:
+    image: caddy:2.9.1-alpine
+    restart: unless-stopped
+    command:
+      - "caddy"
+      - "file-server"
+      - "--browse"
+      - "--root"
+      - "/served"
+    volumes:
+      - ./served:/served
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.static-files.rule=Host(`{{static_files_sub_domain}}.${DOMAIN}`)"
+      - "traefik.http.routers.static-files.entrypoints=websecure"
+      - "traefik.http.services.static-files.loadbalancer.server.port=80"
+      - "traefik.http.routers.static-files.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.static-files.middlewares=basicauthstd"
+      - "traefik.http.middlewares.basicauthstd.basicauth.users={{standard_basic_auth}}"
+networks:
+  default:
+    external: true
+    name: ${TRAEFIK_NETWORK}
