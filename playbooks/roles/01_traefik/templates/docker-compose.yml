@@ -11,6 +11,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - ./acme:/etc/traefik/certs
       - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - /var/log/traefik/traefik.log:/var/log/traefik/log.txt
     networks:
       - net
 

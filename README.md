@@ -43,6 +43,7 @@ ansible-playbook playbooks/full-install.yml -i inventory/hosts.yml --diff
 - [ ] playbook to manage wireguard conf and certificates
 - [ ] update and fix images versions
 - [ ] Import grafana dashboards
+- [ ] Migrate from promtail to grafana alloy
 
 ## use
 

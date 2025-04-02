@@ -54,13 +54,13 @@ certificatesResolvers:
 #
 # Optional
 #
-#log:
+log:
   # Log level
   #
   # Optional
   # Default: "ERROR"
   #
-#  level: DEBUG
+  level: INFO
 
   # Sets the filepath for the traefik log. If not specified, stdout will be used.
   # Intermediate directories are created if necessary.
@@ -87,21 +87,21 @@ certificatesResolvers:
 #
 # Optional
 #
-#accessLog:
+accessLog:
   # Sets the file path for the access log. If not specified, stdout will be used.
   # Intermediate directories are created if necessary.
   #
   # Optional
   # Default: os.Stdout
   #
-#  filePath: /path/to/log/log.txt
+  filePath: /var/log/traefik/log.txt
 
   # Format is either "json" or "common".
   #
   # Optional
   # Default: "common"
   #
-#  format: json
+  format: json
 
 ################################################################
 # API and dashboard configuration
