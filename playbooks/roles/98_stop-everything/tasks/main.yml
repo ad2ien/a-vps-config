@@ -1,0 +1,4 @@
+- name: Run script
+  ansible.builtin.script:
+    chdir: /srv
+    cmd: files/stop-everything.sh

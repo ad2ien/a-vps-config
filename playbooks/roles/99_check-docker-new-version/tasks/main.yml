@@ -1,0 +1,20 @@
+- name: Create /srv/watchtower
+  file:
+    path: /{{ app_path }}/watchtower
+    state: directory
+  register: watchtower_folder
+
+- name: Copy template files to /srv/watchtower
+  template:
+    src: "{{ item }}"
+    dest: /srv/watchtower/{{ item | replace('.template', '') }}
+    mode: "0644"
+  loop:
+    - docker-compose.yml
+  register: watchtower_config
+
+- name: Run watchtower
+  ansible.builtin.shell:
+    chdir: /srv/watchtower
+    cmd: docker compose up
+

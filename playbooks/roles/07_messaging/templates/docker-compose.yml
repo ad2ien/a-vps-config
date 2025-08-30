@@ -1,6 +1,6 @@
 services:
   homeserver:
-    image: matrixconduit/matrix-conduit:v0.10.4
+    image: matrixconduit/matrix-conduit:v0.10.8
     restart: unless-stopped
     volumes:
       - db:/var/lib/matrix-conduit/

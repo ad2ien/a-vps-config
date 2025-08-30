@@ -1,0 +1,12 @@
+---
+- name: Maintenance playbook
+  hosts: ad2ien.dev
+  become: yes
+  vars_files:
+    - group_vars/all.yml
+    - group_vars/private.yml
+  roles:
+    - role: 98_stop-everything
+      tags: stop-everything
+    - role: 99_check-docker-new-version
+      tags: check-version

@@ -1,0 +1,11 @@
+services:
+  watchtower:
+    image: containrrr/watchtower:1.7.1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      - --run-once
+      - --monitor-only
+      - --notification-log-stdout
+      - --debug
+      - prometheus
