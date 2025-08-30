@@ -1,0 +1,28 @@
+---
+# Deploy a notification tool https://github.com/ad2ien/help-the-stars/
+
+- name: Create /srv/help-the-stars
+  file:
+    path: /{{ app_path }}/help-the-stars
+    state: directory
+
+- name: Copy template files to /srv/help-the-stars
+  template:
+    src: "{{ item }}"
+    dest: /srv/help-the-stars/{{ item | replace('.template', '') }}
+    mode: "0644"
+  loop:
+    - docker-compose.yml
+    - .env.template
+  register: help_the_stars_config
+
+- name: Stop stack
+  community.docker.docker_compose_v2:
+    project_src: /srv/help-the-stars
+    state: absent
+  when: help_the_stars_config.changed
+
+- name: Start stack
+  community.docker.docker_compose_v2:
+    project_src: /srv/help-the-stars
+    state: present

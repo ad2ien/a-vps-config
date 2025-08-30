@@ -26,3 +26,10 @@ frps_basic_auth:
 
 static_files_sub_domain:
 standard_basic_auth:
+
+# Help the stars config
+github_token:
+matrix_homeserver:
+matrix_username:
+matrix_password:
+matrix_roomid:

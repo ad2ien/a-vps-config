@@ -24,13 +24,13 @@
     - .env.template
   register: static_files_config
 
-- name: Stop redirect stack
+- name: Stop stack
   community.docker.docker_compose_v2:
     project_src: /srv/static-files
     state: absent
   when: static_files_config.changed
 
-- name: Start redirect stack
+- name: Start stack
   community.docker.docker_compose_v2:
     project_src: /srv/static-files
     state: present

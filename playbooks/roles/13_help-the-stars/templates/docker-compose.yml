@@ -1,0 +1,19 @@
+services:
+  help-the-stars:
+    image: ghcr.io/ad2ien/help-the-stars:latest
+    volumes:
+      - ./.env:/app/.env:ro
+      - help-the-stars:/app/db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.help-the-stars.rule=Host(`help-the-stars.${DOMAIN}`)"
+      - "traefik.http.routers.help-the-stars.entrypoints=websecure"
+      - "traefik.http.services.help-the-stars.loadbalancer.server.port=1983"
+      - "traefik.http.routers.help-the-stars.tls.certresolver=letsencrypt"
+volumes:
+  help-the-stars:
+
+networks:
+  default:
+    external: true
+    name: ${TRAEFIK_NETWORK}

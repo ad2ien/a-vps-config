@@ -30,3 +30,5 @@
       tags: frp
     - role: 12_static-files
       tags: static-files
+    - role: 13_help-the-stars
+      tags: help-the-stars
