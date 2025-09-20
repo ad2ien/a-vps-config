@@ -20,7 +20,7 @@ services:
       - .env
 
   app:
-    image: nextcloud:31.0.6
+    image: nextcloud:31.0.9
     restart: unless-stopped
     links:
       - db-pg
@@ -51,7 +51,7 @@ services:
   #   restart: unless-stopped
   #   labels:
   #     - "traefik.enable=true"
-  #     - "traefik.http.routers.onlyoffice.rule=Host(`onlyoffice-${DOMAIN}`)"
+  #     - "traefik.http.routers.onlyoffice.rule=Host(`onlyoffice.${DOMAIN}`)"
   #     - "traefik.http.routers.onlyoffice.entrypoints=websecure"
   #     - "traefik.http.services.onlyoffice.loadbalancer.server.port=80"
   #     - "traefik.http.routers.onlyoffice.tls=true"
