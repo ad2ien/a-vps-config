@@ -4,7 +4,7 @@ traefik_network: traefik_net
 domain: ad2ien.dev
 org_name: ad2ien
 
-nexcloud_sub_domain: nextcloud
+nextcloud_sub_domain: nextcloud
 wireguard_sub_domain: wireguard
 messaging_sub_domain: im
 element_sub_domain: element

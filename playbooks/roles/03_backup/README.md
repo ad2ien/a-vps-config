@@ -14,6 +14,8 @@ Copy it in the current folder
 
 ### Alias
 
+Switch to root to access docker volumes if needed.
+
 Make aliases for convenience:
 
 ```bash

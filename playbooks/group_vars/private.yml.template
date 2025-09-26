@@ -10,6 +10,10 @@ restic_pcloud_stack:
 bkp_pcloud_token:
 
 nextcloud_db_password:
+# to generate the 3 following pw : `openssl rand --hex 32`
+nextcloud_turn_secret:
+nextcloud_turn_internal_secret:
+nextcloud_turn_signaling_secret:
 
 registry_pw:
 registry_user:

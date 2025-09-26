@@ -1,5 +1,12 @@
 # Nextcloud config
 
+## Talk
+
+Activate Talk module. In `https://nextcloud.DOMAIN/settings/admin/talk`. Set the following:
+
+- High-performance backend `https://nc-signaling.DOMAIN` and `nextcloud_turn_signaling_secret`
+- add a TURN server : `turn: only`, `DOMAIN:3478`, `nextcloud_turn_secret`, `UDP and TCP`
+
 ## Backup and retention management
 
 Use case : Backup Podcast Addict app on Android and have a retention period
@@ -12,7 +19,7 @@ Use case : Backup Podcast Addict app on Android and have a retention period
 
 ### Nextcloud
 
-Install the folowing plugin :
+Install the following plugin :
 
 - Retention <https://github.com/nextcloud/files_retention>
 - files_automatedtagging <https://github.com/nextcloud/files_automatedtagging>

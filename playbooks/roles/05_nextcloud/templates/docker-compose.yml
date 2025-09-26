@@ -36,7 +36,7 @@ services:
       - TRUSTED_PROXIES={{traefik_net_subnet}}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.nextcloud.rule=Host(`{{nexcloud_sub_domain}}.${DOMAIN}`)"
+      - "traefik.http.routers.nextcloud.rule=Host(`{{nextcloud_sub_domain}}.${DOMAIN}`)"
       - "traefik.http.routers.nextcloud.entrypoints=websecure"
       - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
       - "traefik.http.routers.nextcloud.tls=true"
@@ -45,6 +45,27 @@ services:
       - "traefik.http.middlewares.nextcloud-redirectregex.redirectregex.permanent=true"
       - "traefik.http.middlewares.nextcloud-redirectregex.redirectregex.regex=https://(.*)/.well-known/(?:card|cal)dav"
       - "traefik.http.middlewares.nextcloud-redirectregex.redirectregex.replacement=https://$${1}/remote.php/dav"
+
+  aio-talk:
+    image: ghcr.io/nextcloud-releases/aio-talk:20250918_093027
+    container_name: nextcloud-aio-talk
+    environment:
+      - NC_DOMAIN={{c}}.${DOMAIN}
+      - TALK_PORT=3478
+      - TURN_SECRET={{nextcloud_turn_secret}}
+      - SIGNALING_SECRET={{nextcloud_turn_signaling_secret}}
+      - INTERNAL_SECRET={{nextcloud_turn_internal_secret}}
+    ports:
+      - 3478:3478/udp
+      - 3478:3478/tcp
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextcloud-talk.rule=Host(`nc-signaling.${DOMAIN}`)"
+      - "traefik.http.routers.nextcloud-talk.entrypoints=websecure"
+      - "traefik.http.services.nextcloud-talk.loadbalancer.server.port=8081"
+      - "traefik.http.routers.nextcloud-talk.tls=true"
+      - "traefik.http.routers.nextcloud-talk.tls.certresolver=letsencrypt"
+
 
   # onlyoffice-documentserver:
   #   image: onlyoffice/documentserver:8.1.3
