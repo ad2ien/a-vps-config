@@ -20,7 +20,7 @@ services:
       - .env
 
   app:
-    image: nextcloud:31.0.9
+    image: nextcloud:32.0.2
     restart: unless-stopped
     links:
       - db-pg
@@ -47,10 +47,10 @@ services:
       - "traefik.http.middlewares.nextcloud-redirectregex.redirectregex.replacement=https://$${1}/remote.php/dav"
 
   aio-talk:
-    image: ghcr.io/nextcloud-releases/aio-talk:20250918_093027
+    image: ghcr.io/nextcloud-releases/aio-talk:20251031_122139
     container_name: nextcloud-aio-talk
     environment:
-      - NC_DOMAIN={{c}}.${DOMAIN}
+      - NC_DOMAIN={{nextcloud_sub_domain}}.${DOMAIN}
       - TALK_PORT=3478
       - TURN_SECRET={{nextcloud_turn_secret}}
       - SIGNALING_SECRET={{nextcloud_turn_signaling_secret}}
@@ -65,7 +65,6 @@ services:
       - "traefik.http.services.nextcloud-talk.loadbalancer.server.port=8081"
       - "traefik.http.routers.nextcloud-talk.tls=true"
       - "traefik.http.routers.nextcloud-talk.tls.certresolver=letsencrypt"
-
 
   # onlyoffice-documentserver:
   #   image: onlyoffice/documentserver:8.1.3
