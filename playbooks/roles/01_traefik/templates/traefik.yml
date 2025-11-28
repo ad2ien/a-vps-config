@@ -24,6 +24,12 @@ global:
 entryPoints:
   web:
     address: :80
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
 
   websecure:
     address: :443
@@ -37,7 +43,7 @@ entryPoints:
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: {{admin_email}}
+      email: {{ admin_email }}
       caserver: https://acme-v02.api.letsencrypt.org/directory
       storage: /etc/traefik/certs/acme.json
       httpChallenge:
@@ -111,7 +117,7 @@ accessLog:
 #
 # Optional
 #
-#api:
+api:
   # Enable the API in insecure mode
   #
   # Optional
@@ -124,7 +130,7 @@ accessLog:
   # Optional
   # Default: true
   #
-#  dashboard: false
+  dashboard: true
 
 ################################################################
 # Ping configuration

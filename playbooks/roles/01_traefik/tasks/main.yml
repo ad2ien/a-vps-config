@@ -4,16 +4,6 @@
     path: /{{ app_path }}/traefik
     state: directory
 
-- name: Create log file repository
-  file:
-    path: /var/log/traefik/
-    state: directory
-
-- name: Create log file
-  file:
-    path: /var/log/traefik/traefik.log
-    state: touch
-
 - name: Copy traefik template files to /srv/traefik
   template:
     src: "{{ item }}"
