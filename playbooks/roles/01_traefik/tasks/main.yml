@@ -7,11 +7,11 @@
 - name: Copy traefik template files to /srv/traefik
   template:
     src: "{{ item }}"
-    dest: /srv/traefik/{{ item | replace('.template', '') }}
+    dest: /srv/traefik/{{ item | replace('.template', '') | replace('.jinja', '.yml') }}
     mode: "0644"
   loop:
     - docker-compose.yml
-    - traefik.yml
+    - traefik.jinja
     - .env.template
   register: traefik_config
 

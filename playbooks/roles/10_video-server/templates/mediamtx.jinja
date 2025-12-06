@@ -51,9 +51,9 @@ authMethod: internal
 authInternalUsers:
   # Default unprivileged user.
   # Username. 'any' means any user, including anonymous ones.
-  - user: { { mediamtx_user } }
+  - user: {{ mediamtx_user }}
     # Password. Not used in case of 'any' user.
-    pass: { { mediamtx_password } }
+    pass: {{ mediamtx_password }}
     # IPs or networks allowed to use this user. An empty list means any IP.
     ips: []
     # List of permissions.

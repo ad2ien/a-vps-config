@@ -11,12 +11,12 @@
 - name: Copy template files to /srv/mediamtx
   template:
     src: "{{ item }}"
-    dest: /srv/mediamtx/{{ item | replace('.template', '') }}
+    dest: /srv/mediamtx/{{ item | replace('.template', '') | replace('.jinja', '.yml') }}
     mode: "0644"
     owner: "{{ linux_user }}"
   loop:
     - docker-compose.yml
-    - mediamtx.yml
+    - mediamtx.jinja
   register: mediamtx_config
 
 - name: Create certs folder
