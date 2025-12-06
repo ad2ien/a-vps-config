@@ -24,6 +24,15 @@
 - docker / docker compose installed
 - a domain pointing to this VPS
 
+### Ansible modules
+
+- docker
+- crypto
+
+```bash
+ansible-galaxy collection install community.docker community.crypto
+```
+
 ## Deployment
 
 - [Ansible](https://docs.ansible.com/)

@@ -24,8 +24,8 @@
       tags: messaging
     - role: 09_redirect
       tags: redirect
-    # - role: 10_video-server
-    #   tags: mediamtx
+    - role: 10_video-server
+      tags: mediamtx
     # - role: 11_frp
     #   tags: frp
     - role: 12_static-files

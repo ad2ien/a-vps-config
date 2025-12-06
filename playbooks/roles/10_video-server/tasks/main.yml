@@ -26,7 +26,7 @@
     owner: "{{ linux_user }}"
 
 - name: Create private key file
-  openssl_privatekey:
+  community.crypto.openssl_privatekey:
     path: "{{ app_path }}/mediamtx/certs/rtmp-server.key"
     size: 2048
 
@@ -50,11 +50,8 @@
 - name: Open ports
   community.general.ufw:
     rule: allow
-    port: "{{ item }}"
+    port: "1936"
     proto: tcp
-  loop:
-    - '1935'
-    - '1936'
 
 - name: Stop mediamtx container
   community.docker.docker_compose_v2:
