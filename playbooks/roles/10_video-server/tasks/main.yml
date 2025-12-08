@@ -27,13 +27,13 @@
 
 - name: Create private key file
   community.crypto.openssl_privatekey:
-    path: "{{ app_path }}/mediamtx/certs/rtmp-server.key"
+    path: "{{ app_path }}/mediamtx/certs/stream-server.key"
     size: 2048
 
 - name: Create CSR
   openssl_csr:
-    path: "{{ app_path }}/mediamtx/certs/rtmp-server.csr"
-    privatekey_path: "{{ app_path }}/mediamtx/certs/rtmp-server.key"
+    path: "{{ app_path }}/mediamtx/certs/stream-server.csr"
+    privatekey_path: "{{ app_path }}/mediamtx/certs/stream-server.key"
     country_name: FR
     organization_name: "{{ org_name }}"
     common_name: "{{ domain }}"
@@ -41,16 +41,16 @@
 
 - name: Generate self-signed SSL certificate
   openssl_certificate:
-    path: "{{ app_path }}/mediamtx/certs/rtmp-server.crt"
-    privatekey_path: "{{ app_path }}/mediamtx/certs/rtmp-server.key"
-    csr_path: "{{ app_path }}/mediamtx/certs/rtmp-server.csr"
+    path: "{{ app_path }}/mediamtx/certs/stream-server.crt"
+    privatekey_path: "{{ app_path }}/mediamtx/certs/stream-server.key"
+    csr_path: "{{ app_path }}/mediamtx/certs/stream-server.csr"
     provider: selfsigned
   register: mediamtx_cert
 
 - name: Open ports
   community.general.ufw:
     rule: allow
-    port: "1936"
+    port: "8322"
     proto: tcp
 
 - name: Stop mediamtx container

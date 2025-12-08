@@ -6,4 +6,4 @@ services:
       - ./mediamtx.yml:/mediamtx.yml
       - ./certs:/certs
     ports:
-      - 1936:1936/tcp
+      - 8322:8322/tcp
