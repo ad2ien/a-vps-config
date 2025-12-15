@@ -21,7 +21,7 @@ registry_user:
 redirection_sub_domain:
 redirection_url:
 
-mediamtx_user: 
+mediamtx_user:
 mediamtx_password:
 
 frps_auth_token:
@@ -37,3 +37,5 @@ matrix_homeserver:
 matrix_username:
 matrix_password:
 matrix_roomid:
+
+shinobi_db_password:

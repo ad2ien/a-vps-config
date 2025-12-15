@@ -1,0 +1,46 @@
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:1.11.3
+    restart: unless-stopped
+    volumes:
+      - ./mediamtx.yml:/mediamtx.yml
+      - ./certs:/certs
+    ports:
+      - 8322:8322/tcp
+      - 8554:8554/tcp
+
+  shinobi:
+    image: {{ registry_sub_domain }}.{{ domain }}/shinobi:latest
+    restart: unless-stopped
+    environment:
+      - DB_HOST=shinobi-db
+      - DB_USER=shinobi
+      - DB_PASSWORD=${SHINOBI_DB_PASSWORD}
+      - DB_DATABASE=ccio
+      - SHINOBI_UPDATE=false
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.shinobi.rule=Host(`shinobi.${DOMAIN}`)"
+      - "traefik.http.routers.shinobi.entrypoints=websecure"
+      - "traefik.http.services.shinobi.loadbalancer.server.port=8080"
+      - "traefik.http.routers.shinobi.tls=true"
+      - "traefik.http.routers.shinobi.tls.certresolver=letsencrypt"
+
+  shinobi-db:
+    image: mysql:5.7
+    restart: unless-stopped
+    volumes:
+      - shinoby-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=ccio
+      - MYSQL_USER=shinobi
+      - MYSQL_PASSWORD=${SHINOBI_DB_PASSWORD}
+
+volumes:
+  shinoby-data:
+
+networks:
+  default:
+    external: true
+    name: ${TRAEFIK_NETWORK}

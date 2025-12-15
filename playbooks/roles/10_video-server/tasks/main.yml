@@ -15,8 +15,9 @@
     mode: "0644"
     owner: "{{ linux_user }}"
   loop:
-    - docker-compose.yml
+    - docker-compose.jinja
     - mediamtx.jinja
+    - .env.template
   register: mediamtx_config
 
 - name: Create certs folder
@@ -50,8 +51,21 @@
 - name: Open ports
   community.general.ufw:
     rule: allow
-    port: "8322"
+    port: "{{ item }}"
     proto: tcp
+  loop:
+    - 8322
+    - 8554
+
+- name: Docker login to this stack registry
+  community.docker.docker_login:
+    registry: "{{ registry_sub_domain }}.{{ domain }}"
+    username: "{{ registry_user }}"
+    password: "{{ registry_pw }}"
+
+- name: Pull cutomized Shinobi image
+  community.docker.docker_image_pull:
+    name: "{{ registry_sub_domain }}.{{ domain }}/shinobi:latest"
 
 - name: Stop mediamtx container
   community.docker.docker_compose_v2:

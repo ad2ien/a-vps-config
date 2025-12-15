@@ -16,6 +16,8 @@
   - [Nextcloud](https://nextcloud.com/)
   - [Wireguard](https://www.wireguard.com/)
   - [Conduit](https://conduit.rs/) (Matrix messaging)
+  - [Mediamtx](https://mediamtx.org/) / [Shinobi](https://shinobi.video/) for video monitoring
+  - [Docker registry](https://hub.docker.com/_/registry)
 - and also used as playground to test or temporary use various projects
 
 ## Requirements
