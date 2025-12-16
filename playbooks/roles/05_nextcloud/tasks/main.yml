@@ -23,6 +23,15 @@
     - .env.template
   register: nextcloud_config
 
+- name: Open ports
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.port }}"
+    proto: tcp
+  loop:
+    - { port: 3478, protocol: "tcp" }
+    - { port: 3478, protocol: "udp" }
+
 - name: Stop nextcloud
   community.docker.docker_compose_v2:
     project_src: /srv/nextcloud

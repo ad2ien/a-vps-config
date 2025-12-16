@@ -1,0 +1,47 @@
+---
+- name: Create /srv/rustdesk
+  file:
+    path: /{{ app_path }}/rustdesk
+    state: directory
+
+- name: Copy template files to /srv/rustdesk
+  template:
+    src: "{{ item }}"
+    dest: /srv/rustdesk/{{ item | replace('.template', '') }}
+    mode: "0644"
+  loop:
+    - docker-compose.yml
+  register: rustdesk_config
+
+- name: Open ports
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.port }}"
+    proto: tcp
+  loop:
+    - { port: 21115, protocol: "tcp" }
+    - { port: 21116, protocol: "tcp" }
+    - { port: 21116, protocol: "udp" }
+    - { port: 21117, protocol: "tcp" }
+    - { port: 21118, protocol: "tcp" }
+    - { port: 21119, protocol: "tcp" }
+
+- name: Stop stack
+  community.docker.docker_compose_v2:
+    project_src: /srv/rustdesk
+    state: absent
+  when: rustdesk_config.changed
+
+- name: Start stack
+  community.docker.docker_compose_v2:
+    project_src: /srv/rustdesk
+    state: present
+
+- name: get public key in logs and show it
+  shell: |
+    docker compose -f /srv/rustdesk/docker-compose.yml logs hbbs | grep "Key:" | awk -F'Key:' '{print $2}'
+  register: rustdesk_key
+
+- name: Public key
+  debug:
+    msg: "{{ rustdesk_key.stdout }}"

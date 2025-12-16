@@ -32,3 +32,5 @@
       tags: static-files
     - role: 13_help-the-stars
       tags: help-the-stars
+    - role: 14_rustdesk
+      tags: rustdesk
