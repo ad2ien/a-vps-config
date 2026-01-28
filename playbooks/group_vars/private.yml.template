@@ -25,6 +25,9 @@ mediamtx_user:
 mediamtx_password:
 
 frps_auth_token:
+frp_monitor_user:
+frp_monitor_password:
+frps_subdomain:
 # echo $(htpasswd -nB user) | sed -e s/\\$/\\$\\$/g
 frps_basic_auth:
 

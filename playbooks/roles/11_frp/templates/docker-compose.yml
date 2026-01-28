@@ -6,8 +6,13 @@ services:
       - ./frps.toml:/etc/frp/frps.toml:ro
     ports:
       - "{{frps_port}}:{{frps_port}}"
+      - "{{frps_tcpmux_port}}:{{frps_tcpmux_port}}"
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.frps-monitor.rule=Host(`{{frps_monitor}}.${DOMAIN}`)"
+      - "traefik.http.routers.frps-monitor.entrypoints=websecure"
+      - "traefik.http.services.frps-monitor.loadbalancer.server.port={{frps_webserver_port}}"
+      - "traefik.http.routers.frps-monitor.tls.certresolver=letsencrypt"
       - "traefik.http.routers.frps1.rule=Host(`{{frps_subdomain}}.${DOMAIN}`)"
       - "traefik.http.routers.frps1.entrypoints=websecure"
       - "traefik.http.services.frps1.loadbalancer.server.port={{vhost_frps_port}}"

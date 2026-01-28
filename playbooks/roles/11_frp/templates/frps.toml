@@ -1,5 +1,11 @@
 bindPort = {{frps_port}}
-vhostHTTPPort = 7080
+tcpmuxHTTPConnectPort = {{frps_tcpmux_port}}
+vhostHTTPPort = {{vhost_frps_port}}
 
 auth.method = "token"
 auth.token = "{{frps_auth_token}}"
+
+webServer.addr = "0.0.0.0"
+webServer.port = {{frps_webserver_port}}
+webServer.user = "{{frp_monitor_user}}"
+webServer.password = "{{frp_monitor_password}}"

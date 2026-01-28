@@ -22,8 +22,11 @@
 - name: Open port
   community.general.ufw:
     rule: allow
-    port: "{{frps_port}}"
+    port: "{{item}}"
     proto: tcp
+  loop:
+    - "{{frps_port}}"
+    - "{{frps_tcpmux_port}}"
 
 - name: Stop frps container
   community.docker.docker_compose_v2:

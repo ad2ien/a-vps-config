@@ -1,26 +1,62 @@
 # FRP
 
-## Use case
+Doc : <https://github.com/fatedier/frp>
 
-There's a server using the camera running on an Android device that I want to access from the internet.
+## Ssh distant login
 
-browser <- https -> traefik basic auth <-> frps container <-> frpc android device <-> android server app
+Ssh login to a local device from anywhere
 
-## Basic auth
+### FRPS client
+
+On your device like a local server or a raspberry.
+
+```toml
+# frpc.toml
+serverAddr = {{domain}}
+serverPort = {{frps_port}}
+
+auth.method = "token"
+auth.token = "{{frps_auth_token}}"
+
+[[proxies]]
+name = "ssh1"
+type = "tcpmux"
+multiplexer = "httpconnect"
+customDomains = ["any.madeup.url"]
+localIP = "127.0.0.1"
+localPort = 22
+```
+
+Install the right binary <https://github.com/fatedier/frp/releases>
+
+Start the process
+
+```bash
+./frpc -c frpc.toml
+```
+
+### Connect from anywhere
+
+Install [socat](https://linux.die.net/man/1/socat)
+
+```bash
+ssh -o 'proxycommand socat - PROXY:{{domain}}:%h:%p,proxyport={{frps_tcpmux_port}}' user@any.madeup.url
+```
+
+## Https server access
+
+There's a server using running on an Android or raspberry device that you want to access from the internet.
+
+browser <- https -> traefik basic auth <-> frps container <-> frpc device <-> device server app
+
+### Basic auth
 
 Create password
 
 ```bash
 echo $(htpasswd -nB user) | sed -e s/\\$/\\$\\$/g
-```
 
-## FRPS
-
-Full configuration : <https://github.com/fatedier/frp/blob/dev/conf/frps_full_example.toml>
-
-Needs a port for communication between frpc and frps and and other port to serve the actual tunneled application.
-
-## Device
+### Android FRPS Device
 
 Configure device
 
@@ -56,14 +92,8 @@ Configure device
   customDomains = ["{{frps_subdomain}}.domain"]
   ```
 
-Full configuration : <https://github.com/fatedier/frp/blob/dev/conf/frpc_full_example.toml>
-
 - run
 
   ```bash
   nohup ./frpc -c ./frpc.toml >/dev/null 2>&1 &
   ```
-
-### TODO
-
-- [ ] run automatically

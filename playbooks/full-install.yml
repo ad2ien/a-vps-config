@@ -26,8 +26,8 @@
       tags: redirect
     - role: 10_video-server
       tags: mediamtx
-    # - role: 11_frp
-    #   tags: frp
+    - role: 11_frp
+      tags: frp
     - role: 12_static-files
       tags: static-files
     - role: 13_help-the-stars

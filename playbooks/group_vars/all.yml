@@ -12,5 +12,7 @@ registry_sub_domain: registry
 registry_ui_sub_domain: registry-ui
 
 frps_port: 7007
+frps_tcpmux_port: 5007
 vhost_frps_port: 7080
-frps_subdomain: android1
+frps_webserver_port: 7507
+frps_monitor: frp
