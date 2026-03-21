@@ -34,3 +34,5 @@
       tags: help-the-stars
     - role: 14_rustdesk
       tags: rustdesk
+    - role: 15_dolibarr
+      tags: dolibarr

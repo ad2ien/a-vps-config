@@ -42,3 +42,12 @@ matrix_password:
 matrix_roomid:
 
 shinobi_db_password:
+
+dolibarr_db_root_pw:
+dolibarr_db_pw:
+dolibarr_subdomain:
+dolibarr_admin_user:
+dolibarr_admin_pw:
+dolibarr_cron_key:
+dolibarr_company:
+
