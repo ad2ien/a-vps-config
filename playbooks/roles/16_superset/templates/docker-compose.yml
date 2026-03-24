@@ -1,0 +1,102 @@
+x-superset-image: &superset-image {{ superset_image }}
+x-superset-volumes:
+  &superset-volumes # /app/pythonpath_docker will be appended to the PYTHONPATH in the final container
+  - ./docker:/app/docker
+  - superset_home:/app/superset_home
+
+services:
+  redis:
+    image: redis:7
+    container_name: superset_cache
+    restart: unless-stopped
+    volumes:
+      - redis:/data
+
+  db:
+    env_file:
+      - path: .env
+    image: postgres:17
+    container_name: superset_db
+    restart: unless-stopped
+    volumes:
+      - db_home:/var/lib/postgresql/data
+      - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+
+  superset:
+    env_file:
+      - path: .env
+    image: *superset-image
+    container_name: superset_app
+    command: ["/app/docker/docker-bootstrap.sh", "app-gunicorn"]
+    user: "root"
+    restart: unless-stopped
+    depends_on:
+      superset-init:
+        condition: service_completed_successfully
+    volumes: *superset-volumes
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.{{ superset_sub_domain }}.rule=Host(`{{ superset_sub_domain }}.${DOMAIN}`)"
+      - "traefik.http.routers.{{ superset_sub_domain }}.entrypoints=websecure"
+      - "traefik.http.services.{{ superset_sub_domain }}.loadbalancer.server.port=8088"
+      - "traefik.http.routers.{{ superset_sub_domain }}.tls.certresolver=letsencrypt"
+
+  superset-init:
+    image: *superset-image
+    container_name: superset_init
+    command: ["/app/docker/docker-init.sh"]
+    env_file:
+      - path: .env
+    depends_on:
+      db:
+        condition: service_started
+      redis:
+        condition: service_started
+    user: "root"
+    volumes: *superset-volumes
+    healthcheck:
+      disable: true
+
+  superset-worker:
+    image: *superset-image
+    container_name: superset_worker
+    command: ["/app/docker/docker-bootstrap.sh", "worker"]
+    env_file:
+      - path: .env
+    restart: unless-stopped
+    depends_on:
+      superset-init:
+        condition: service_completed_successfully
+    user: "root"
+    volumes: *superset-volumes
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "celery -A superset.tasks.celery_app:app inspect ping -d celery@$$HOSTNAME",
+        ]
+
+  superset-worker-beat:
+    image: *superset-image
+    container_name: superset_worker_beat
+    command: ["/app/docker/docker-bootstrap.sh", "beat"]
+    env_file:
+      - path: .env
+    restart: unless-stopped
+    depends_on:
+      superset-init:
+        condition: service_completed_successfully
+    user: "root"
+    volumes: *superset-volumes
+    healthcheck:
+      disable: true
+
+volumes:
+  superset_home:
+  db_home:
+  redis:
+
+networks:
+  default:
+    external: true
+    name: ${TRAEFIK_NETWORK}

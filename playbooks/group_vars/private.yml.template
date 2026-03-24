@@ -51,3 +51,8 @@ dolibarr_admin_pw:
 dolibarr_cron_key:
 dolibarr_company:
 
+superset_srv_path:
+superset_sub_domain:
+superset_image:
+superset_db_pw:
+superset_secret_key:

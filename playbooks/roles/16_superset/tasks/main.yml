@@ -1,0 +1,46 @@
+---
+- name: Create /srv/{{ superset_srv_path }}
+  file:
+    path: "{{ app_path }}/{{ superset_srv_path }}"
+    state: directory
+    owner: "{{ linux_user }}"
+
+- name: Clone Apache Superset repository (tag 6.0.0)
+  ansible.builtin.git:
+    repo: https://github.com/apache/superset.git
+    single_branch: true
+    dest: ./tmp/superset
+    version: 6.0.0
+    depth: 1
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+- name: Copy docker folder from local to remote
+  ansible.builtin.copy:
+    src: "./tmp/superset/docker/"
+    dest: "{{ app_path }}/{{ superset_srv_path }}/docker/"
+    mode: "0755"
+    owner: "{{ linux_user }}"
+
+- name: Copy template files to /srv/superset
+  template:
+    src: "{{ item }}"
+    dest: "{{ app_path }}/{{ superset_srv_path }}/{{ item | replace('.template', '') }}"
+    mode: "0644"
+    owner: "{{ linux_user }}"
+  loop:
+    - docker-compose.yml
+    - .env.template
+  register: superset_config
+
+- name: Stop stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_path }}/{{ superset_srv_path }}"
+    state: absent
+  when: superset_config.changed or superset_config_docker.changed
+
+- name: Start stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_path }}/{{ superset_srv_path }}"
+    state: present
