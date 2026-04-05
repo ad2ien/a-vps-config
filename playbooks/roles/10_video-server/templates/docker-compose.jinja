@@ -8,6 +8,8 @@ services:
     ports:
       - 8322:8322/tcp
       - 8554:8554/tcp
+    networks:
+      - traefik
 
   shinobi:
     image: {{ registry_sub_domain }}.{{ domain }}/shinobi:latest
@@ -20,11 +22,15 @@ services:
       - SHINOBI_UPDATE=false
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK}"
       - "traefik.http.routers.shinobi.rule=Host(`shinobi.${DOMAIN}`)"
       - "traefik.http.routers.shinobi.entrypoints=websecure"
       - "traefik.http.services.shinobi.loadbalancer.server.port=8080"
       - "traefik.http.routers.shinobi.tls=true"
       - "traefik.http.routers.shinobi.tls.certresolver=letsencrypt"
+    networks:
+      - traefik
+      - internal
 
   shinobi-db:
     image: mysql:5.7
@@ -36,11 +42,15 @@ services:
       - MYSQL_DATABASE=ccio
       - MYSQL_USER=shinobi
       - MYSQL_PASSWORD=${SHINOBI_DB_PASSWORD}
+    networks:
+      - internal
 
 volumes:
   shinoby-data:
 
 networks:
-  default:
+  internal:
+    internal: true
+  traefik:
     external: true
     name: ${TRAEFIK_NETWORK}

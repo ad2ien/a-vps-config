@@ -14,6 +14,8 @@ services:
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
     expose:
       - 9100
+    networks:
+      - internal
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.52.1
@@ -29,6 +31,8 @@ services:
       - /var/run:/var/run:rw
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - internal
 
   prometheus:
     image: prom/prometheus:v3.7.3
@@ -45,6 +49,8 @@ services:
       - "--web.enable-lifecycle"
     expose:
       - 9090
+    networks:
+      - internal
 
   grafana:
     image: grafana/grafana-oss:11.5.8
@@ -62,11 +68,15 @@ services:
       - 3000
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK}"
       - "traefik.http.routers.grafana.rule=Host(`monitoring.$DOMAIN`)"
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
       - "traefik.http.routers.grafana.tls=true"
       - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
+    networks:
+      - traefik
+      - internal
 
   promtail:
     image: grafana/promtail:3.5.8
@@ -76,6 +86,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/log:/var/log:ro
       - ./promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+    networks:
+      - internal
 
   loki:
     image: grafana/loki:3.5.8
@@ -85,12 +97,16 @@ services:
       - 3100
     restart: unless-stopped
     command: -config.file=/etc/loki/loki-config.yml
+    networks:
+      - internal
 
 volumes:
   prometheus_data: {}
   grafana_data:
 
 networks:
-  default:
+  internal:
+    internal: true
+  traefik:
     external: true
     name: ${TRAEFIK_NETWORK}

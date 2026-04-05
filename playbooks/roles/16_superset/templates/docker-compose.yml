@@ -1,4 +1,4 @@
-x-superset-image: &superset-image {{ superset_image }}
+x-superset-image: &superset-image {{superset_image}}
 x-superset-volumes:
   &superset-volumes # /app/pythonpath_docker will be appended to the PYTHONPATH in the final container
   - ./docker:/app/docker
@@ -11,16 +11,20 @@ services:
     restart: unless-stopped
     volumes:
       - redis:/data
+    networks:
+      - internal
 
   db:
     env_file:
       - path: .env
     image: postgres:17
     container_name: superset_db
-    restart: unless-stopped
+    restart: unless-stopped 
     volumes:
       - db_home:/var/lib/postgresql/data
       - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    networks:
+      - internal
 
   superset:
     env_file:
@@ -36,10 +40,14 @@ services:
     volumes: *superset-volumes
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK}"
       - "traefik.http.routers.{{ superset_sub_domain }}.rule=Host(`{{ superset_sub_domain }}.${DOMAIN}`)"
       - "traefik.http.routers.{{ superset_sub_domain }}.entrypoints=websecure"
       - "traefik.http.services.{{ superset_sub_domain }}.loadbalancer.server.port=8088"
       - "traefik.http.routers.{{ superset_sub_domain }}.tls.certresolver=letsencrypt"
+    networks:
+      - traefik
+      - internal
 
   superset-init:
     image: *superset-image
@@ -56,6 +64,12 @@ services:
     volumes: *superset-volumes
     healthcheck:
       disable: true
+    networks:
+      - internal
+    # Internal but need to download stuff from the internet
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
 
   superset-worker:
     image: *superset-image
@@ -75,6 +89,8 @@ services:
           "CMD-SHELL",
           "celery -A superset.tasks.celery_app:app inspect ping -d celery@$$HOSTNAME",
         ]
+    networks:
+      - internal
 
   superset-worker-beat:
     image: *superset-image
@@ -90,6 +106,8 @@ services:
     volumes: *superset-volumes
     healthcheck:
       disable: true
+    networks:
+      - internal
 
 volumes:
   superset_home:
@@ -97,6 +115,8 @@ volumes:
   redis:
 
 networks:
-  default:
+  internal:
+    internal: false
+  traefik:
     external: true
     name: ${TRAEFIK_NETWORK}

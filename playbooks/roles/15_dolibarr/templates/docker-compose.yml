@@ -17,6 +17,8 @@ services:
     restart: unless-stopped
     volumes:
       - db:/var/lib/mysql
+    networks:
+      - internal
 
   web:
     <<: *dolibarr
@@ -24,16 +26,22 @@ services:
       DOLI_CRON: 0
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK}"
       - "traefik.http.routers.dolibarr.rule=Host(`${SUB_DOMAIN}.${DOMAIN}`)"
       - "traefik.http.routers.dolibarr.entrypoints=websecure"
       - "traefik.http.services.dolibarr.loadbalancer.server.port=80"
       - "traefik.http.routers.dolibarr.tls.certresolver=letsencrypt"
+    networks:
+      - traefik
+      - internal
 
   cron:
     <<: *dolibarr
     environment:
       DOLI_CRON: 1
       DOLI_CRON_KEY: ${DOLI_CRON_KEY}
+    networks:
+      - internal
 
 volumes:
   documents:
@@ -41,6 +49,8 @@ volumes:
   db:
 
 networks:
-  default:
+  internal:
+    internal: true
+  traefik:
     external: true
     name: ${TRAEFIK_NETWORK}
