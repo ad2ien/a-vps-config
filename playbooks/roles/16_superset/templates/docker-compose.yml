@@ -19,7 +19,7 @@ services:
       - path: .env
     image: postgres:17
     container_name: superset_db
-    restart: unless-stopped 
+    restart: unless-stopped
     volumes:
       - db_home:/var/lib/postgresql/data
       - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d

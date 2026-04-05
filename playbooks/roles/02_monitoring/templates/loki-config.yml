@@ -47,7 +47,7 @@ ruler:
 #
 # If you would like to disable reporting, uncomment the following lines:
 analytics:
- reporting_enabled: false
+  reporting_enabled: false
 
 # limits_config:
 #   ingestion_rate_mb: 1000000  # Set to a very high value
