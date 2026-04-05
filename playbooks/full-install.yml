@@ -37,4 +37,6 @@
     - role: 15_dolibarr
       tags: dolibarr
     - role: 16_superset
-      tags: superset	
+      tags: superset
+    - role: 17_checkmate
+      tags: checkmate

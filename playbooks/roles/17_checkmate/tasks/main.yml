@@ -1,0 +1,26 @@
+---
+- name: Create /srv/checkmate
+  file:
+    path: /{{ app_path }}/checkmate
+    state: directory
+
+- name: Copy template files to /srv/checkmate
+  template:
+    src: "{{ item }}"
+    dest: /srv/checkmate/{{ item | replace('.template', '') }}
+    mode: "0644"
+  loop:
+    - docker-compose.yml
+    - .env.template
+  register: checkmate_config
+
+- name: Stop stack
+  community.docker.docker_compose_v2:
+    project_src: /srv/checkmate
+    state: absent
+  when: checkmate_config.changed
+
+- name: Start stack
+  community.docker.docker_compose_v2:
+    project_src: /srv/checkmate
+    state: present
