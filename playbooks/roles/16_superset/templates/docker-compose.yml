@@ -66,10 +66,6 @@ services:
       disable: true
     networks:
       - internal
-    # Internal but need to download stuff from the internet
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
 
   superset-worker:
     image: *superset-image
@@ -116,7 +112,6 @@ volumes:
 
 networks:
   internal:
-    internal: false
   traefik:
     external: true
     name: ${TRAEFIK_NETWORK}
