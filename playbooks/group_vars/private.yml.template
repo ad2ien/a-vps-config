@@ -1,3 +1,8 @@
+domain:
+org_name:
+
+linux_user:
+
 admin_email:
 grafana_admin_password:
 smtp_host:
