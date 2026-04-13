@@ -46,3 +46,18 @@
   community.docker.docker_compose_v2:
     project_src: /srv/backup
     state: present
+
+- name: Copy backup-logger.sh to /srv/backup
+  copy:
+    src: backup-logger.sh
+    dest: /srv/backup/backup-logger.sh
+    mode: "0755"
+  register: backup_logger
+
+- name: Schedule backup-logger.sh to run at 4:30 AM
+  ansible.builtin.cron:
+    name: "Run backup logger"
+    minute: "30"
+    hour: "4"
+    job: "cd /srv/backup && bash backup-logger.sh"
+    user: root

@@ -13,6 +13,7 @@ restic_password:
 restic_pcloud_repo:
 restic_pcloud_stack:
 bkp_pcloud_token:
+matrix_backup_roomid:
 
 nextcloud_db_password:
 # to generate the 3 following pw : `openssl rand --hex 32`
