@@ -51,6 +51,7 @@ services:
       - 9090
     networks:
       - internal
+      - traefik
 
   grafana:
     image: grafana/grafana-oss:11.5.8
