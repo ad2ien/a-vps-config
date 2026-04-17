@@ -40,3 +40,5 @@
       tags: superset
     - role: 17_checkmate
       tags: checkmate
+    - role: 18_moodle
+      tags: moodle

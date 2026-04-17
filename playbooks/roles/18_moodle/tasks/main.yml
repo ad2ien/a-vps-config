@@ -1,0 +1,26 @@
+---
+- name: Create /srv/moodle
+  file:
+    path: /{{ app_path }}/moodle
+    state: directory
+
+- name: Copy template files to /srv/moodle
+  template:
+    src: "{{ item }}"
+    dest: /srv/moodle/{{ item | replace('.template', '') }}
+    mode: "0644"
+  loop:
+    - docker-compose.yml
+    - .env.template
+  register: moodle_config
+
+- name: Stop stack
+  community.docker.docker_compose_v2:
+    project_src: /srv/moodle
+    state: absent
+  when: moodle_config.changed
+
+- name: Start stack
+  community.docker.docker_compose_v2:
+    project_src: /srv/moodle
+    state: present

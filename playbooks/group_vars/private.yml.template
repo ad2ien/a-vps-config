@@ -67,3 +67,7 @@ checkmate_domain:
 checkmate_jwt_secret:
 checkmate_mongo_user:
 checkmate_mongo_pw:
+
+moodle_domain:
+moodle_db_pw:
+moodle_admin_pw:
