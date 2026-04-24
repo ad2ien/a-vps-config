@@ -1,0 +1,15 @@
+all:
+  hosts:
+    primary-server:
+    secondary-server:
+    no-public-ip-server:
+master:
+  hosts:
+    primary-server:
+simplenode:
+  hosts:
+    secondary-server:
+    no-public-ip-server:
+private_network_node:
+  hosts:
+    no-public-ip-server:

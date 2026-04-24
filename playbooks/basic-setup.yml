@@ -1,0 +1,7 @@
+---
+- name: Install and configure VPS
+  hosts: all
+  become: yes
+  roles:
+    - role: 00_basic-install
+      tags: basic
