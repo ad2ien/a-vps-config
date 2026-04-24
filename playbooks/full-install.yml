@@ -1,7 +1,7 @@
 ---
 - name: Install and configure VPS
   hosts: ad2ien.dev
-  become: yes
+  become: true
   vars_files:
     - group_vars/all.yml
     - group_vars/private.yml

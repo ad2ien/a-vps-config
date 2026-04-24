@@ -1,0 +1,68 @@
+---
+- name: Install and configure VPS
+  hosts: all
+  become: true
+  roles:
+    - role: 00_basic-install
+      tags: basic
+
+- name: Get ready for docker swarm
+  hosts: all
+  tags: swarm
+  become: true
+  tasks:
+    - name: Install Docker Python SDK via apt
+      ansible.builtin.apt:
+        name: python3-docker
+        state: present
+
+    - name: Open Docker Swarm ports
+      community.general.ufw:
+        rule: allow
+        port: "{{ item.port }}"
+        proto: "{{ item.proto }}"
+      loop:
+        - {port: "7946", proto: "tcp"}  # Node communication
+        - {port: "7946", proto: "udp"}  # Node communication
+        - {port: "4789", proto: "udp"}  # Overlay network
+
+- name: Initialize Docker Swarm on master
+  hosts: master
+  become: true
+  tags: swarm
+  tasks:
+    - name: Set master IP as fact
+      ansible.builtin.set_fact:
+        swarm_master_ip: "{{ ansible_default_ipv4.address }}"
+
+    - name: Open Docker Swarm Manager API port - master
+      community.general.ufw:
+        rule: allow
+        port: "2377"
+        proto: "tcp"
+
+    - name: Initialize Docker Swarm
+      community.docker.docker_swarm:
+        state: present
+        advertise_addr: "{{ ansible_default_ipv4.address }}"
+      register: swarm_info
+
+    - name: Get worker join token
+      community.docker.docker_swarm_info:
+      register: swarm_details
+
+    - name: Set worker token as fact
+      ansible.builtin.set_fact:
+        swarm_worker_token: "{{ swarm_details.swarm_facts.JoinTokens.Worker }}"
+
+- name: Join Docker Swarm on worker nodes
+  hosts: simplenode
+  tags: swarm
+  become: true
+  tasks:
+    - name: Join swarm as worker
+      community.docker.docker_swarm:
+        state: join
+        advertise_addr: "{{ ansible_default_ipv4.address }}"
+        remote_addrs: ["{{ hostvars[groups['master'][0]].swarm_master_ip }}:2377"]
+        join_token: "{{ hostvars[groups['master'][0]].swarm_worker_token }}"
