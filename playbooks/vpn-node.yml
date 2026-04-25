@@ -1,0 +1,89 @@
+---
+- name: Generate WireGuard keys in container
+  hosts: master
+  become: true
+  tags: wireguard
+  tasks:
+    - name: Generate client private key
+      shell: docker exec wireguard wg genkey
+      args:
+        chdir: /srv/vpn
+      register: client_private_key
+      changed_when: false
+
+    - name: Generate client public key
+      shell: echo "{{ client_private_key.stdout }}" | docker exec -i wireguard wg pubkey
+      args:
+        chdir: /srv/vpn
+      register: client_public_key
+      changed_when: false
+
+    - name: Read server public key from running container
+      shell: docker exec wireguard wg show wg0 public-key
+      args:
+        chdir: /srv/vpn
+      register: server_public_key
+      changed_when: false
+
+    - name: Set WireGuard facts
+      set_fact:
+        wg_client_private: "{{ client_private_key.stdout }}"
+        wg_client_public: "{{ client_public_key.stdout }}"
+        wg_server_public: "{{ server_public_key.stdout }}"
+
+# TODO Change AllowedIPs with the next address
+- name: Configure WireGuard server on master
+  hosts: master
+  become: true
+  tags: wireguard
+  tasks:
+    - name: Add client peer to existing WireGuard config
+      blockinfile:
+        path: /srv/vpn/config/wg_confs/wg0.conf
+        block: |
+          [Peer]
+          PublicKey = {{ hostvars[groups['master'][0]].wg_client_public }}
+          AllowedIPs = 10.13.13.5/32
+        marker: "# {mark} CLIENT PEER MANAGED BY ANSIBLE"
+      register: server_config
+
+    - name: Restart WireGuard container
+      shell: docker compose restart wireguard
+      args:
+        chdir: /srv/vpn
+      when: server_config.changed
+
+- name: Configure WireGuard client
+  hosts: private_network_node
+  become: true
+  tags: wireguard
+  tasks:
+    - name: Install WireGuard
+      ansible.builtin.apt:
+        name:
+          - wireguard
+          - wireguard-tools
+        state: present
+
+    - name: Create WireGuard client configuration
+      copy:
+        content: |
+          [Interface]
+          PrivateKey = {{ hostvars[groups['master'][0]].wg_client_private }}
+          Address = 10.13.13.2/24
+          
+          [Peer]
+          PublicKey = {{ hostvars[groups['master'][0]].wg_server_public }}
+          Endpoint = ad2ien.dev:51820
+          AllowedIPs = 10.13.13.0/24
+          PersistentKeepalive = 25
+        dest: /etc/wireguard/wg0.conf
+        mode: "0600"
+      register: client_config
+
+    - name: Enable and start WireGuard
+      systemd:
+        name: wg-quick@wg0
+        enabled: true
+        state: started
+      when: client_config.changed
