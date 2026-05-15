@@ -1,13 +1,13 @@
 x-dolibarr: &dolibarr
   image: dolibarr/dolibarr:16.0.5
   volumes:
-    - custom:/var/www/html/custom
-    - documents:/var/www/documents
+    - {{ tenant }}-custom:/var/www/html/custom
+    - {{ tenant }}-documents:/var/www/documents
   env_file: .env
   restart: unless-stopped
 
 services:
-  mariadb:
+  {{ tenant }}-mariadb:
     image: mariadb:12.2-ubi
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -18,39 +18,41 @@ services:
     volumes:
       - db:/var/lib/mysql
     networks:
-      - internal
+      - {{ tenant }}-internal
 
-  web:
+  {{ tenant }}-web:
     <<: *dolibarr
     environment:
       DOLI_CRON: 0
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=${TRAEFIK_NETWORK}"
-      - "traefik.http.routers.dolibarr.rule=Host(`${SUB_DOMAIN}.${DOMAIN}`)"
-      - "traefik.http.routers.dolibarr.entrypoints=websecure"
-      - "traefik.http.services.dolibarr.loadbalancer.server.port=80"
-      - "traefik.http.routers.dolibarr.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dolibarr-{{ tenant }}.rule=Host(`${SUB_DOMAIN}.${DOMAIN}`)"
+      - "traefik.http.routers.dolibarr-{{ tenant }}.entrypoints=websecure"
+      - "traefik.http.services.dolibarr-{{ tenant }}.loadbalancer.server.port=80"
+      - "traefik.http.routers.dolibarr-{{ tenant }}.tls.certresolver=letsencrypt"
     networks:
       - traefik
-      - internal
+      - {{ tenant }}-internal
+    depends_on:
+      {{ tenant }}-mariadb:
+        condition: service_healthy
 
-  cron:
+  {{ tenant }}-cron:
     <<: *dolibarr
     environment:
       DOLI_CRON: 1
       DOLI_CRON_KEY: ${DOLI_CRON_KEY}
     networks:
-      - internal
+      - {{ tenant }}-internal
 
 volumes:
-  documents:
-  custom:
-  db:
+  {{ tenant }}-documents:
+  {{ tenant }}-custom:
+  {{ tenant }}-db:
 
 networks:
-  internal:
-    internal: true
+  {{ tenant }}-internal:
   traefik:
     external: true
     name: ${TRAEFIK_NETWORK}

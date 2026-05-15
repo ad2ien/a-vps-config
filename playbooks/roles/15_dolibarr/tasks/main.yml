@@ -1,27 +1,27 @@
 ---
-- name: Create /srv/dolibarr
+- name: Create dolibarr path
   file:
-    path: /{{ app_path }}/dolibarr
+    path: "{{ app_path }}/{{ tenant }}/dolibarr"
     state: directory
     mode: "0775"
 
-- name: Copy template files to /srv/dolibarr
+- name: Copy template files to dolibarr
   template:
     src: "{{ item }}"
-    dest: /srv/dolibarr/{{ item | replace('.template', '') }}
+    dest: "{{ app_path }}/{{ tenant }}/dolibarr/{{ item | replace('.template', '') }}"
     mode: "0644"
   loop:
-    - docker-compose.yml
+    - compose.yaml
     - .env.template
   register: dolibarr_config
 
 - name: Stop stack
   community.docker.docker_compose_v2:
-    project_src: /srv/dolibarr
+    project_src: "{{ app_path }}/{{ tenant }}/dolibarr"
     state: absent
   when: dolibarr_config.changed
 
 - name: Start stack
   community.docker.docker_compose_v2:
-    project_src: /srv/dolibarr
+    project_src: "{{ app_path }}/{{ tenant }}/dolibarr"
     state: present

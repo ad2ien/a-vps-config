@@ -44,6 +44,8 @@
 ansible-galaxy collection install community.docker community.crypto
 ```
 
+## Run
+
 - Setup vps configuration in `host_vars`
 - make and fill `private.yml` based on `private.yml.template` depending on your needs
 
@@ -55,10 +57,7 @@ ansible-playbook playbooks/full-install.yml  -i inventory/hosts.yml -t $TOOL --d
 
 $TOOL tag from there : [full-install.yml](./full-install.yml)
 
-## ⚠️ IN PROGRESS
+### With tenant
 
-### TODO
-
-- [ ] playbook to manage wireguard conf and certificates
-- [ ] Import grafana dashboards
-- [ ] Migrate from promtail to grafana alloy
+- fill tenants/tenant.yml with vars from `ROLE/default/main.yml`
+- ansible-playbook playbooks/full-install.yml  -i inventory/hosts.yml --limit VPS -t ROLE -e @tenants/TENANT.yaml --diff
