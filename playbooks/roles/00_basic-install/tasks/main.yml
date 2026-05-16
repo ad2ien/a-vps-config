@@ -61,6 +61,13 @@
     state: latest
     update_cache: true
 
+- name: Add user to docker group
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+  when: ansible_user is defined
+
 - name: Create apps server folder
   file:
     path: "{{ app_path }}"
