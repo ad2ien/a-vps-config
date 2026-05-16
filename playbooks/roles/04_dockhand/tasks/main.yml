@@ -1,0 +1,26 @@
+---
+- name: Create /srv/dockhand
+  file:
+    path: "{{ app_path }}/dockhand"
+    state: directory
+
+- name: Copy dockhand template files to /srv/dockhand
+  template:
+    src: "{{ item }}"
+    dest: "{{ app_path }}/dockhand/{{ item | replace('.template', '') }}"
+    mode: "0644"
+  loop:
+    - compose.yaml
+    - .env.template
+  register: dockhand_config
+
+- name: Stop dockhand
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_path }}/dockhand"
+    state: absent
+  when: dockhand_config.changed
+
+- name: Start dockhand
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_path }}/dockhand"
+    state: present

@@ -1,0 +1,22 @@
+services:
+  dockhand:
+    image: fnsys/dockhand:v1.0.28
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - dockhand_data:/app/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dockhand.rule=Host(`containers.${DOMAIN}`)"
+      - "traefik.http.routers.dockhand.entrypoints=websecure"
+      - "traefik.http.services.dockhand.loadbalancer.server.port=3000"
+      - "traefik.http.routers.dockhand.tls=true"
+      - "traefik.http.routers.dockhand.tls.certresolver=letsencrypt"
+
+volumes:
+  dockhand_data:
+
+networks:
+  default:
+    name: ${TRAEFIK_NETWORK}
+    external: true
