@@ -1,0 +1,156 @@
+# Ex of command to configure a server that doesn't have a public IP address :
+# ansible-playbook playbooks/wireguard.yml -i inventory/hosts.yml --limit "master,private_network_node" -t wireguard
+
+---
+- name: Configure WireGuard on master
+  hosts: master
+  become: true
+  tags: wireguard
+  tasks:
+    - name: Install WireGuard
+      ansible.builtin.apt:
+        name:
+          - wireguard
+          - wireguard-tools
+        state: present
+
+    - name: Allow WireGuard port in UFW
+      community.general.ufw:
+        rule: allow
+        port: "51821"
+        proto: udp
+
+    - name: Create clients directory
+      file:
+        path: /etc/wireguard/clients
+        state: directory
+        mode: "0700"
+
+    - name: Check if WireGuard config already exists
+      stat:
+        path: /etc/wireguard/wg0.conf
+      register: wg_config
+
+    - name: Read existing server private key
+      shell: grep "^PrivateKey" /etc/wireguard/wg0.conf | awk '{print $3}'
+      register: existing_server_private
+      when: wg_config.stat.exists
+      changed_when: false
+
+    - name: Generate server private key if not exists
+      shell: wg genkey
+      register: server_private_key
+      when: not wg_config.stat.exists
+      changed_when: false
+
+    - name: Derive server public key from private key
+      shell: echo "{% if wg_config.stat.exists %}{{ existing_server_private.stdout }}{% else %}{{ server_private_key.stdout }}{% endif %}" | wg pubkey
+      register: server_public_key
+      changed_when: false
+
+    - name: Generate keys for each client if not exists
+      shell: |
+        if [ ! -f /etc/wireguard/clients/{{ item }}_private.key ]; then
+          wg genkey > /etc/wireguard/clients/{{ item }}_private.key
+          chmod 600 /etc/wireguard/clients/{{ item }}_private.key
+        fi
+      loop: "{{ groups['private_network_node'] }}"
+      changed_when: false
+
+    - name: Read client public keys
+      shell: cat /etc/wireguard/clients/{{ item }}_private.key | wg pubkey
+      register: client_public_keys
+      loop: "{{ groups['private_network_node'] }}"
+      changed_when: false
+
+    - name: Calculate client IPs
+      set_fact:
+        wg_client_ips: "{{ wg_client_ips | default({}) | combine({item: '10.13.13.' + (loop_index0 + 2) | string}) }}"
+      loop: "{{ groups['private_network_node'] }}"
+      loop_control:
+        index_var: loop_index0
+
+    - name: Set server facts
+      set_fact:
+        wg_server_private: "{% if wg_config.stat.exists %}{{ existing_server_private.stdout }}{% else %}{{ server_private_key.stdout }}{% endif %}"
+        wg_server_public: "{{ server_public_key.stdout }}"
+
+    - name: Create WireGuard [Interface] section
+      blockinfile:
+        path: /etc/wireguard/wg0.conf
+        block: |
+          [Interface]
+          PrivateKey = {{ wg_server_private }}
+          Address = 10.13.13.1/24
+          ListenPort = 51821
+        marker: "# {mark} INTERFACE MANAGED BY ANSIBLE"
+        create: yes
+        mode: "0600"
+      register: server_config
+
+    - name: Add client peers to WireGuard config
+      blockinfile:
+        path: /etc/wireguard/wg0.conf
+        block: |
+          [Peer]
+          PublicKey = {{ item.1.stdout }}
+          AllowedIPs = {{ wg_client_ips[item.0] }}/32
+        marker: "# {mark} {{ item.0 }} PEER MANAGED BY ANSIBLE"
+      loop: "{{ groups['private_network_node'] | zip(client_public_keys.results) | list }}"
+      register: peer_config
+
+    - name: Enable and start WireGuard
+      systemd:
+        name: wg-quick@wg0
+        enabled: true
+        state: started
+      when: server_config.changed or peer_config.changed
+
+- name: Configure WireGuard client on private nodes
+  hosts: private_network_node
+  become: true
+  tags: wireguard
+  tasks:
+    - name: Install WireGuard
+      ansible.builtin.apt:
+        name:
+          - wireguard
+          - wireguard-tools
+        state: present
+
+    - name: Read client private key from master
+      slurp:
+        src: /etc/wireguard/clients/{{ inventory_hostname }}_private.key
+      register: client_private_key
+      delegate_to: "{{ groups['master'][0] }}"
+
+    - name: Create WireGuard client [Interface] section
+      blockinfile:
+        path: /etc/wireguard/wg0.conf
+        block: |
+          [Interface]
+          PrivateKey = {{ client_private_key.content | b64decode | trim }}
+          Address = {{ hostvars[groups['master'][0]].wg_client_ips[inventory_hostname] }}/24
+        marker: "# {mark} INTERFACE MANAGED BY ANSIBLE"
+        create: yes
+        mode: "0600"
+      register: client_interface
+
+    - name: Add server peer to client WireGuard config
+      blockinfile:
+        path: /etc/wireguard/wg0.conf
+        block: |
+          [Peer]
+          PublicKey = {{ hostvars[groups['master'][0]].wg_server_public }}
+          Endpoint = {{ groups['master'][0] }}:51821
+          AllowedIPs = 10.13.13.0/24
+          PersistentKeepalive = 25
+        marker: "# {mark} SERVER PEER MANAGED BY ANSIBLE"
+      register: client_peer
+
+    - name: Enable and start WireGuard
+      systemd:
+        name: wg-quick@wg0
+        enabled: true
+        state: started
+      when: client_interface.changed or client_peer.changed
