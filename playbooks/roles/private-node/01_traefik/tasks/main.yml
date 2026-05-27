@@ -12,7 +12,6 @@
   loop:
     - compose.yaml
     - traefik.jinja
-    - dynamic.jinja
     - .env.template
   register: traefik_config
 
@@ -21,14 +20,6 @@
     project_src: "{{ app_path }}/traefik"
     state: absent
   when: traefik_config.changed
-
-- name: Backup existing docker-compose.yml
-  ansible.builtin.shell: |
-    if [ -f "{{ app_path }}/traefik/docker-compose.yml" ]; then
-      mv "{{ app_path }}/traefik/docker-compose.yml" "{{ app_path }}/traefik/docker-compose.yml.bkp"
-    fi
-  when: traefik_config.changed
-  changed_when: false
 
 - name: Start Traefik
   community.docker.docker_compose_v2:

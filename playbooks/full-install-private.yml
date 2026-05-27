@@ -1,0 +1,14 @@
+---
+- name: Install and configure VPS
+  hosts: private_network_node
+  become: true
+  vars_files:
+    - group_vars/all.yml
+    - group_vars/private.yml
+  roles:
+    - role: 00_basic-install
+      tags: basic
+    - role: private-node/01_traefik
+      tags: traefik
+    - role: private-node/99_whoami
+      tags: whoami

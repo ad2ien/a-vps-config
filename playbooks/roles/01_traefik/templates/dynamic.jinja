@@ -1,0 +1,19 @@
+http:
+  routers:
+    lgl:
+      rule: 'Host(`*.{{ private_server_subdomain }}.{{ domain }}`)'
+      entryPoints:
+        - websecure
+      service: lgl-backend
+      tls:
+        certResolver: letsencrypt-dns
+        domains:
+          - main: "{{ private_server_subdomain }}.{{ domain }}"
+            sans:
+              - "*.{{ private_server_subdomain }}.{{ domain }}"
+
+  services:
+    lgl-backend:
+      loadBalancer:
+        servers:
+          - url: http://{{ private_server_ip }}:80

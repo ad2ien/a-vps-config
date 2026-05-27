@@ -1,0 +1,31 @@
+services:
+  traefik:
+    image: traefik:v3.7.1
+    container_name: "traefik"
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      # - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - ./acme:/etc/traefik/certs
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./dynamic.yml:/etc/traefik/dynamic.yml:ro
+    networks:
+      - net
+    environment:
+      - CF_DNS_API_TOKEN=$CF_DNS_API_TOKEN
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.middlewares=authtraefik"
+      - "traefik.http.middlewares.authtraefik.basicauth.users={{standard_basic_auth}}"
+
+networks:
+  net:
+    driver: bridge

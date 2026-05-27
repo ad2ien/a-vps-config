@@ -1,8 +1,6 @@
 domain:
 org_name:
 
-linux_user:
-
 admin_email:
 grafana_admin_password:
 smtp_host:
@@ -63,3 +61,6 @@ checkmate_mongo_pw:
 moodle_domain:
 moodle_db_pw:
 moodle_admin_pw:
+
+private_server_ip:
+private_server_subdomain:

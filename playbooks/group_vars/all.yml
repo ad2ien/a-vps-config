@@ -1,5 +1,4 @@
 ---
-app_path: /srv
 traefik_network: traefik_net
 
 nextcloud_sub_domain: nextcloud

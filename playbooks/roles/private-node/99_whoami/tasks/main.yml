@@ -1,0 +1,26 @@
+---
+- name: Create whoami directory
+  file:
+    path: "{{ app_path }}/whoami"
+    state: directory
+
+- name: Copy template files to whoami
+  template:
+    src: "{{ item }}"
+    dest: "{{ app_path }}/whoami/{{ item | replace('.template', '') }}"
+    mode: "0644"
+  loop:
+    - compose.yaml
+    - .env.template
+  register: whoami_config
+
+- name: Stop stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_path }}/whoami"
+    state: absent
+  when: whoami_config.changed
+
+- name: Start stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_path }}/whoami"
+    state: present

@@ -24,47 +24,12 @@ global:
 entryPoints:
   web:
     address: :80
-    http:
-      redirections:
-        entryPoint:
-          to: websecure
-          scheme: https
-          permanent: true
 
   websecure:
     address: :443
 
   metrics:
-    address: ":8080"
-
-certificatesResolvers:
-  letsencrypt:
-    acme:
-      email: {{ admin_email }}
-      caserver: https://acme-v02.api.letsencrypt.org/directory
-      storage: /etc/traefik/certs/acme.json
-      httpChallenge:
-        # used during the challenge
-        entryPoint: web
-      tlschallenge: true
-
-  letsencrypt-dns:
-    acme:
-      email: {{ admin_email }}
-      storage: /etc/traefik/certs/acme-dns.json
-      dnsChallenge:
-        provider: cloudflare
-        resolvers:
-          - "1.1.1.1:53"
-          - "8.8.8.8:53"
-
-  letsencrypt-staging:
-    acme:
-      email: {{ admin_email }}
-      caserver: https://acme-staging-v02.api.letsencrypt.org/directory
-      storage: /etc/traefik/certs/acme-staging.json
-      httpChallenge:
-        entryPoint: web
+    address: ":8082"
 
 ################################################################
 # Traefik logs configuration
@@ -138,8 +103,7 @@ api:
   # Optional
   # Default: false
   #
-#  insecure: true
-
+  insecure: true
   # Enabled Dashboard
   #
   # Optional
@@ -187,9 +151,6 @@ providers:
     # Default: true
     #
     exposedByDefault: false
-  file:
-    filename: /etc/traefik/dynamic.yml
-    watch: true
 
 metrics:
   prometheus:
