@@ -4,4 +4,6 @@ rules:
   line-length:
     max: 200
     level: warning
-ignore: main.yml
+ignore:
+  - main.yml
+  - tmp/

@@ -8,7 +8,7 @@
 - name: Copy template files to dolibarr
   template:
     src: "{{ item }}"
-    dest: "{{ app_path }}/{{ tenant }}/dolibarr/{{ item | replace('.template', '') }}"
+    dest: "{{ app_path }}/{{ tenant }}/dolibarr/{{ item | replace('.template', '') | replace('.jinja', '') }}"
     mode: "0644"
   loop:
     - compose.yaml
