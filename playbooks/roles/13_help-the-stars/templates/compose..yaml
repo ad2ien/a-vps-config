@@ -1,6 +1,7 @@
 services:
   help-the-stars:
-    image: ghcr.io/ad2ien/help-the-stars:latest
+    image: ghcr.io/ad2ien/help-the-stars:v1.1.0
+    restart: unless-stopped
     volumes:
       - help-the-stars:/app/db
     command:
