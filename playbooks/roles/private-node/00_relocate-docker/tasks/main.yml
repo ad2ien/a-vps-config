@@ -1,0 +1,26 @@
+
+- name: Create docker data directory
+  file:
+    path: "{{ space_path }}/docker"
+    state: directory
+    mode: "0710"
+  become: true
+
+- name: Configure Docker daemon to use custom data directory
+  copy:
+    content: |
+      {
+        "data-root": "{{ space_path }}/docker"
+      }
+    dest: /etc/docker/daemon.json
+    mode: "0644"
+  become: true
+  register: docker_config_changed
+
+- name: Restart Docker daemon
+  systemd:
+    name: docker
+    state: restarted
+    daemon_reload: yes
+  become: true
+  when: docker_config_changed.changed

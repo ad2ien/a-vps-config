@@ -1,0 +1,48 @@
+---
+- name: Install autossh
+  apt:
+    name: autossh
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Create systemd service directory for autossh-tunnel
+  file:
+    path: /etc/systemd/system/autossh-tunnel.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Create autossh-tunnel systemd service
+  template:
+    src: autossh-tunnel.service.j2
+    dest: /etc/systemd/system/autossh-tunnel.service
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  register: autossh_service
+
+- name: Reload systemd daemon
+  systemd_service:
+    daemon_reload: true
+  become: true
+  when: autossh_service.changed or autossh_override.changed
+
+- name: Enable and start autossh-tunnel service
+  systemd_service:
+    name: autossh-tunnel
+    enabled: true
+    state: started
+  become: true
+
+- name: Display autossh-tunnel service status
+  command: systemctl status autossh-tunnel --no-pager
+  register: autossh_status
+  become: true
+
+- name: Show autossh-tunnel service status
+  debug:
+    msg: "{{ autossh_status.stdout_lines }}"

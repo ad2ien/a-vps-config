@@ -1,0 +1,6 @@
+---
+# SSH key path
+autossh_ssh_key_path:
+master_linux_user:
+master_port:
+master_ip:

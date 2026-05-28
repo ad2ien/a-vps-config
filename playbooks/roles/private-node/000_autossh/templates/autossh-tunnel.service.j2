@@ -1,0 +1,12 @@
+[Unit]
+Description=AutoSSH tunnel to VPS
+After=network.target
+
+[Service]
+User={{ autossh_user }}
+ExecStart=/usr/bin/autossh -M 0 -N -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" -i /home/{{ linux_user }}/{{ autossh_ssh_key_path }} -R 0.0.0.0:{{ master_port }}:localhost:22 {{ master_linux_user }}@{{ master_ip }}
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

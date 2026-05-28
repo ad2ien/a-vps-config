@@ -8,6 +8,10 @@
   roles:
     - role: 00_basic-install
       tags: basic
+    - role: private-node/000_autossh
+      tags: autossh
+    - role: private-node/00_relocate-docker
+      tags: relocate-docker
     - role: private-node/01_traefik
       tags: traefik
     - role: private-node/99_whoami

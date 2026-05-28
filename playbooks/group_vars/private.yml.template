@@ -45,8 +45,6 @@ matrix_username:
 matrix_password:
 matrix_roomid:
 
-shinobi_db_password:
-
 superset_srv_path:
 superset_sub_domain:
 superset_image:
