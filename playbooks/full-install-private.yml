@@ -14,5 +14,9 @@
       tags: relocate-docker
     - role: private-node/01_traefik
       tags: traefik
+    - role: private-node/04_video-server
+      tags: video
+    - role: private-node/05_cam
+      tags: cam
     - role: private-node/99_whoami
       tags: whoami

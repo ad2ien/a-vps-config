@@ -1,21 +1,21 @@
 ---
 # MediaMtx server
 
-- name: Create /srv/mediamtx
+- name: Create mediamtx
   file:
     path: "{{ app_path }}/mediamtx"
     state: directory
     owner: "{{ linux_user }}"
   register: mediamtx_folder
 
-- name: Copy template files to /srv/mediamtx
+- name: Copy template files to mediamtx
   template:
     src: "{{ item }}"
-    dest: /srv/mediamtx/{{ item | replace('.template', '') | replace('.jinja', '.yml') }}
+    dest: "{{ app_path }}/mediamtx/{{ item | replace('.template', '') | replace('.jinja', '.yml') }}"
     mode: "0644"
     owner: "{{ linux_user }}"
   loop:
-    - docker-compose.jinja
+    - compose.yaml
     - mediamtx.jinja
     - .env.template
   register: mediamtx_config

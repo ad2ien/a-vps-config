@@ -1,0 +1,112 @@
+---
+- name: Install ffmpeg and dependencies
+  apt:
+    name:
+      - ffmpeg
+      - v4l-utils
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Create webcam streaming service user
+  user:
+    name: webcam-stream
+    system: yes
+    home: /nonexistent
+    shell: /usr/sbin/nologin
+  become: true
+
+- name: Create webcam streaming directory
+  file:
+    path: /opt/webcam-stream
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Create ffmpeg streaming script
+  copy:
+    content: |
+      #!/bin/bash
+      # FFmpeg to MediaMTX streaming script via RTSP
+      # This script streams from a webcam to MediaMTX server
+      
+      set -e
+      
+      WEBCAM_DEVICE="/dev/video0"
+      MEDIAMTX_URL="localhost:8554"
+      MEDIAMTX_USER="{{ mediamtx_user }}"
+      MEDIAMTX_PASSWORD="{{ mediamtx_password }}"
+      MEDIAMTX_PATH=house.sdp
+      
+      RTSP_URL="rtsp://${MEDIAMTX_USER}:${MEDIAMTX_PASSWORD}@${MEDIAMTX_URL}/${MEDIAMTX_PATH}"
+      
+      # Log function
+      log() {
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] $@" | tee -a /var/log/webcam-stream.log
+      }
+      
+      log "Starting webcam stream from $WEBCAM_DEVICE to $RTSP_URL"
+      
+      ffmpeg -i "$WEBCAM_DEVICE" -f rtsp -rtsp_transport tcp \
+        -vf "transpose=1, transpose=1" \
+        "$RTSP_URL"
+    dest: /opt/webcam-stream/stream.sh
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Create systemd service for webcam streaming
+  copy:
+    content: |
+      [Unit]
+      Description=Webcam FFmpeg Stream to MediaMTX
+      After=network-online.target
+      Wants=network-online.target
+      
+      [Service]
+      Type=simple
+      User=root
+      Group=root
+      ExecStart=/opt/webcam-stream/stream.sh
+      Restart=always
+      RestartSec=30
+      StandardOutput=journal
+      StandardError=journal
+      SyslogIdentifier=webcam-stream
+      
+      # Resource limits
+      LimitNOFILE=8192
+      
+      [Install]
+      WantedBy=multi-user.target
+    dest: /etc/systemd/system/webcam-stream.service
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  register: webcam_service
+
+- name: Reload systemd daemon
+  systemd_service:
+    daemon_reload: true
+  become: true
+  when: webcam_service.changed
+
+- name: Enable and start webcam streaming service
+  systemd_service:
+    name: webcam-stream
+    enabled: true
+    state: started
+  become: true
+
+- name: Display service status
+  command: systemctl status webcam-stream --no-pager
+  register: service_status
+  become: true
+
+- name: Show webcam stream service status
+  debug:
+    msg: "{{ service_status.stdout_lines }}"

@@ -6,13 +6,13 @@ services:
       - ./mediamtx.yml:/mediamtx.yml
       - ./certs:/certs
     ports:
-      - 8322:8322/tcp
+      - 127.0.0.1:8322:8322/tcp
       - 8554:8554/tcp
     networks:
       - traefik
 
   shinobi:
-    image: {{ registry_sub_domain }}.{{ domain }}/shinobi:latest
+    image: "{{ registry_sub_domain }}.{{ domain }}/shinobi:latest"
     restart: unless-stopped
     environment:
       - DB_HOST=shinobi-db
@@ -20,14 +20,14 @@ services:
       - DB_PASSWORD=${SHINOBI_DB_PASSWORD}
       - DB_DATABASE=ccio
       - SHINOBI_UPDATE=false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=${TRAEFIK_NETWORK}"
       - "traefik.http.routers.shinobi.rule=Host(`shinobi.${DOMAIN}`)"
-      - "traefik.http.routers.shinobi.entrypoints=websecure"
+      - "traefik.http.routers.shinobi.entrypoints=web"
       - "traefik.http.services.shinobi.loadbalancer.server.port=8080"
-      - "traefik.http.routers.shinobi.tls=true"
-      - "traefik.http.routers.shinobi.tls.certresolver=letsencrypt"
     networks:
       - traefik
       - internal
@@ -50,7 +50,6 @@ volumes:
 
 networks:
   internal:
-    internal: true
   traefik:
     external: true
     name: ${TRAEFIK_NETWORK}

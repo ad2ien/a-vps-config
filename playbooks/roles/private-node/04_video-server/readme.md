@@ -17,13 +17,13 @@ With ffmpeg for example
 
 ```bash
 ffmpeg -i /dev/video0 -f rtsp -rtsp_transport tcp \
-rtsps://$USER:$PASSWORD@$BASE_URL:8322/live.sdp
+rtsp://$USER:$PASSWORD@$BASE_URL:8554/live.sdp
 ```
 
 you can read it with
 
 ```bash
-ffplay rtsps://$USER:$PASSWORD@$BASE_URL:8322/live.sdp
+ffplay rtsp://$USER:$PASSWORD@$BASE_URL:8554/live.sdp
 ```
 
 ## Shinobi
