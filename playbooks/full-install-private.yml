@@ -18,5 +18,7 @@
       tags: video
     - role: private-node/05_cam
       tags: cam
+    - role: 08_registry
+      tags: registry
     - role: private-node/99_whoami
       tags: whoami

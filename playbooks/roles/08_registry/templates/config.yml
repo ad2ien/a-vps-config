@@ -1,0 +1,22 @@
+version: 0.1
+
+log:
+  level: info
+  format: text
+  fields:
+    service: registry
+
+storage:
+  filesystem:
+    rootdirectory: /var/lib/registry
+  delete:
+    enabled: true
+
+auth:
+  htpasswd:
+    realm: "Registry Realm"
+    path: /auth/htpasswd
+
+http:
+  addr: :5000
+  secret: {{ registry_secret }}
