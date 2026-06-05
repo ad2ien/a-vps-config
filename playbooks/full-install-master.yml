@@ -40,3 +40,5 @@
       tags: checkmate
     - role: 18_moodle
       tags: moodle
+    - role: 19_paheko
+      tags: paheko
