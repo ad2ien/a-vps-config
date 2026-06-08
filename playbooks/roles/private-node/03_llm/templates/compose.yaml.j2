@@ -1,0 +1,35 @@
+services:
+  ollama:
+    image: ad2ien/ollama:latest
+    restart: unless-stopped
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+    group_add:
+      - video
+    ipc: host
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_MODELS=/root/.ollama
+    volumes:
+      - "{{ space_path }}/ollama:/root/.ollama"
+      - webui_data:/usr/local/lib/python3.12/dist-packages/open_webui/data/
+    ports:
+      - "127.0.0.1:11434:11434"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.llm.rule=Host(`llm.${DOMAIN}`)"
+      - "traefik.http.routers.llm.entrypoints=web"
+      - "traefik.http.services.llm.loadbalancer.server.port=8080"
+
+volumes:
+  webui_data:
+
+networks:
+  default:
+    external: true
+    name: ${TRAEFIK_NETWORK}
