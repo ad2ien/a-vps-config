@@ -7,12 +7,12 @@
 - name: Copy traefik template files to traefik
   template:
     src: "{{ item }}"
-    dest: "{{ app_path }}/traefik/{{ item | replace('.template', '') | replace('.jinja', '.yml') }}"
+    dest: "{{ app_path }}/traefik/{{ item | replace('.j2', '') }}"
     mode: "0644"
   loop:
     - compose.yaml
-    - traefik.jinja
-    - .env.template
+    - traefik.j2
+    - .env.j2
   register: traefik_config
 
 - name: Stop Traefik
