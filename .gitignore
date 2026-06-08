@@ -1,5 +1,4 @@
 .env
 .vscode
-ansible.cfg
 .lock
 tenants/
