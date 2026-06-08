@@ -29,7 +29,7 @@
   systemd_service:
     daemon_reload: true
   become: true
-  when: autossh_service.changed or autossh_override.changed
+  when: autossh_service.changed
 
 - name: Enable and start autossh-tunnel service
   systemd_service:

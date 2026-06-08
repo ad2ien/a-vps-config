@@ -1,6 +1,5 @@
 # A simple VPS IaC
 
-[![Lint workflow status](https://img.shields.io/github/actions/workflow/status/ad2ien/a-vps-config/lint.yml?label=lint&logo=github)](https://ad2ien.github.io/a-vps-config)
 [![Docker](https://img.shields.io/badge/devops-Docker%20compose-2496ED.svg?logo=Docker)](https://www.docker.com/)
 [![Ansible](https://img.shields.io/badge/devops-Ansible-EE0000.svg?logo=Ansible)](https://www.ansible.com/)
 [![Gitmoji](https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg)](https://gitmoji.dev)
@@ -10,7 +9,7 @@
 
 - [Docker / docker compose](https://www.docker.com/)
 - [Traefik](https://doc.traefik.io/) - reverse proxy
-- [Portainer](https://www.portainer.io/) - container management
+- [Dockhand](https://dockhand.pro/) - container management
 - [Prometheus/Grafana](https://grafana.com/) - Observation / alerting
 - [Restic](https://restic.net/) - backup
 - Some tools:
@@ -26,6 +25,8 @@
   | [Superset](https://superset.apache.org/)                              | Data visualization and business intelligence |
   | [Dolibarr](https://www.dolibarr.org/)                                 | ERP and CRM software                         |
   | [Checkmate](https://github.com/bluewave-labs/checkmate)               | Uptime monitoring and alerting               |
+  | [Paheko](https://paheko.cloud/)                                       | Manage associations                          |
+  | [Moodle](https://moodle.org/)                                         | E-learning plateform                         |
 
 - and also used as playground to test or temporary use various projects
 
@@ -44,20 +45,21 @@
 ansible-galaxy collection install community.docker community.crypto
 ```
 
-## Run
+## Setup
 
-- Setup vps configuration in `host_vars`
+- create a vault-pw file with a password
+- Setup vps configuration in `secrets` based on `secrets-template`
+- Crypt all this with ansible-vault : `find . -type f -printf "%h/\"%f\" " | xargs ansible-vault encrypt --vault-password-file=../vault-pw`
 - make and fill `private.yml` based on `private.yml.template` depending on your needs
 
-Then
+$TOOL tag from there : [full-install-master.yml](./full-install-master.yml) or `-private` for private server tools.
+
+### If tenant specific
+
+- fill secrets/tenants/tenant.yml with vars from `ROLE/default/main.yml`
+
+## Run
 
 ```bash
-ansible-playbook playbooks/full-install.yml  -i inventory/hosts.yml -t $TOOL --diff --check
+ansible-playbook playbooks/full-install-master.yml -t ROLE -e @secrets/tenants/TENANT.yaml --diff --vault-password-file=vault-pw --check
 ```
-
-$TOOL tag from there : [full-install.yml](./full-install.yml)
-
-### With tenant
-
-- fill tenants/tenant.yml with vars from `ROLE/default/main.yml`
-- ansible-playbook playbooks/full-install.yml  -i inventory/hosts.yml --limit VPS -t ROLE -e @tenants/TENANT.yaml --diff

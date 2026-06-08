@@ -1,0 +1,15 @@
+ansible_ssh_private_key_file:
+ansible_user:
+ansible_host:
+ansible_port:
+ansible_ssh_common_args: '-o IdentitiesOnly=yes'
+ansible_become_password:
+
+node_type: private_network_node
+domain:
+
+app_path:
+linux_user:
+space_path:
+
+shinobi_db_password:

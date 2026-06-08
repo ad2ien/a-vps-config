@@ -4,3 +4,9 @@ ansible_host:
 ansible_port:
 ansible_ssh_common_args: '-o IdentitiesOnly=yes'
 ansible_become_password:
+
+node_type: master
+domain:
+app_path:
+linux_user:
+cloudflare_api_token:

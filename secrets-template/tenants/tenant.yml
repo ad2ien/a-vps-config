@@ -1,0 +1,9 @@
+tenant:
+
+dolibarr_subdomain:
+dolibarr_cron_key:
+dolibarr_db_root_pw:
+dolibarr_db_pw:
+
+paheko_subdomain:
+paheko_secret:
