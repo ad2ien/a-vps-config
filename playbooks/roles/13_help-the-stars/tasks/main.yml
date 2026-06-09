@@ -9,11 +9,11 @@
 - name: Copy template files to help-the-stars
   template:
     src: "{{ item }}"
-    dest: "{{ app_path }}/help-the-stars/{{ item | replace('.template', '') }}"
+    dest: "{{ app_path }}/help-the-stars/{{ item | replace('.j2', '') }}"
     mode: "0644"
   loop:
     - compose.yaml
-    - .env.template
+    - .env.j2
   register: help_the_stars_config
 
 - name: Stop stack

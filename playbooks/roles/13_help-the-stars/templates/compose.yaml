@@ -16,6 +16,8 @@ services:
       - "$MATRIX_PASSWORD"
       - "--matrix-room"
       - "$MATRIX_ROOM_ID"
+      - "--interval"
+      - "48" #hours
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.help-the-stars.rule=Host(`{{ help_the_stars_sub_domain }}.${DOMAIN}`)"
