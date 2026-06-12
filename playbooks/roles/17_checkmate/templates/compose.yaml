@@ -1,6 +1,6 @@
 services:
   checkmate:
-    image: ghcr.io/bluewave-labs/checkmate-backend-mono:v3.5.1
+    image: ghcr.io/bluewave-labs/checkmate-backend-mono:v3.8.1
     restart: unless-stopped
     environment:
       - UPTIME_APP_API_BASE_URL=https://{{ checkmate_domain }}.${DOMAIN}/api/v1
@@ -16,7 +16,7 @@ services:
       - "traefik.http.routers.checkmate.rule=Host(`{{ checkmate_domain }}.${DOMAIN}`)"
       - "traefik.http.routers.checkmate.entrypoints=websecure"
       - "traefik.http.services.checkmate.loadbalancer.server.port=52345"
-      - "traefik.http.routers.checkmate.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.checkmate.tls.certresolver=letsencrypt-dns"
     networks:
       - traefik
       - internal
