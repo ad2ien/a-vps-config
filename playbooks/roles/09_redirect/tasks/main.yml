@@ -1,30 +1,29 @@
 ---
 # An nginx redirection
 
-- name: Create /srv/presta-redirect
+- name: Create redirect dir
   file:
-    path: /{{ app_path }}/presta-redirect
+    path: "{{ app_path }}/redirect"
     state: directory
   register: redirect_folder
 
-- name: Copy template files to /srv/presta-redirect
+- name: Copy template files to redirect
   template:
     src: "{{ item }}"
-    dest: /srv/presta-redirect/{{ item | replace('.template', '') }}
+    dest: "{{  app_path }}/redirect/{{ item | replace('.j2', '') }}"
     mode: "0644"
   loop:
-    - docker-compose.yml
-    - .env.template
-    - nginx.conf
+    - compose.yaml.j2
+    - nginx.conf.j2
   register: redirect_config
 
 - name: Stop redirect stack
   community.docker.docker_compose_v2:
-    project_src: /srv/presta-redirect
+    project_src: "{{  app_path }}/redirect"
     state: absent
   when: redirect_config.changed
 
 - name: Start redirect stack
   community.docker.docker_compose_v2:
-    project_src: /srv/presta-redirect
+    project_src: "{{  app_path }}/redirect"
     state: present

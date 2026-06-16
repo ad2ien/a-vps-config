@@ -1,0 +1,20 @@
+services:
+  nginx:
+    image: nginx:1.31.1-alpine
+    restart: unless-stopped
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.redirect-1.rule=Host(`{{ redirection_sub_domain_1 }}.{{ domain }}`)"
+      - "traefik.http.routers.redirect-1.entrypoints=websecure"
+      - "traefik.http.services.redirect.loadbalancer.server.port=80"
+      - "traefik.http.routers.redirect-1.tls.certresolver=letsencrypt-dns"
+
+      - "traefik.http.routers.redirect-2.rule=Host(`{{ redirection_sub_domain_2 }}.{{ domain }}`)"
+      - "traefik.http.routers.redirect-2.entrypoints=websecure"
+      - "traefik.http.routers.redirect-2.tls.certresolver=letsencrypt-dns"
+networks:
+  default:
+    external: true
+    name: {{ traefik_network }}

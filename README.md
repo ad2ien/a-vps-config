@@ -49,7 +49,7 @@ ansible-galaxy collection install community.docker community.crypto
 
 - create a vault-pw file with a password
 - Setup vps configuration in `secrets` based on `secrets-template`
-- Crypt all this with ansible-vault : `find . -type f -printf "%h/\"%f\" " | xargs ansible-vault encrypt --vault-password-file=../vault-pw`
+- Crypt all this with ansible-vault : `find . -path "*.git*" -prune -o -type f -printf "%h/\"%f\" " | xargs ansible-vault encrypt --vault-password-file=../vault-pw`
 - make and fill `private.yml` based on `private.yml.template` depending on your needs
 
 $TOOL tag from there : [full-install-master.yml](./full-install-master.yml) or `-private` for private server tools.
