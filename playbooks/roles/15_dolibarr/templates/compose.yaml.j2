@@ -1,5 +1,5 @@
 x-dolibarr: &dolibarr
-  image: dolibarr/dolibarr:16.0.5
+  image: dolibarr/dolibarr:23.0.3
   volumes:
     - {{ tenant }}-custom:/var/www/html/custom
     - {{ tenant }}-documents:/var/www/documents
@@ -15,8 +15,14 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
     volumes:
-      - db:/var/lib/mysql
+      - {{ tenant }}-db:/var/lib/mysql
     networks:
       - {{ tenant }}-internal
 
