@@ -1,0 +1,6 @@
+tenant:
+n8n_subdomain: n8n
+n8n_encryption_key: # generate with: openssl rand -hex 32
+n8n_db_user:
+n8n_db_password:
+n8n_db_database:

@@ -42,3 +42,5 @@
       tags: moodle
     - role: 19_paheko
       tags: paheko
+    - role: 20_n8n
+      tags: n8n
