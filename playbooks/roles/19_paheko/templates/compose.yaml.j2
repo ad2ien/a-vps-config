@@ -1,13 +1,13 @@
+name: {{ tenant }}-paheko
 services:
   paheko:
     image: paheko/paheko:1.3.20
-    container_name: {{ tenant }}-paheko
     restart: unless-stopped
     volumes:
       - ./config.local.php:/var/www/paheko/config.local.php
       - ./php.ini:/usr/local/etc/php/php.ini
-      - {{ tenant }}-pahekodata:/var/www/paheko/data
-      - {{ tenant }}-plugins:/var/www/paheko/data/plugins
+      - pahekodata:/var/www/paheko/data
+      - plugins:/var/www/paheko/data/plugins
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network={{ traefik_network }}"
@@ -17,9 +17,9 @@ services:
       - "traefik.http.routers.paheko-{{ tenant }}.tls.certresolver=letsencrypt"
 
 volumes:
-  "{{ tenant }}-db":
-  "{{ tenant }}-pahekodata":
-  "{{ tenant }}-plugins":
+  "db":
+  "pahekodata":
+  "plugins":
 
 networks:
   default:

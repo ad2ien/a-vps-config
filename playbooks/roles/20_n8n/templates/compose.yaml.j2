@@ -1,5 +1,6 @@
+name: {{ tenant }}-n8n
 services:
-  {{ tenant }}-n8n-postgres:
+  postgres:
     image: postgres:18.4-alpine3.24
     restart: unless-stopped
     environment:
@@ -7,21 +8,21 @@ services:
       POSTGRES_PASSWORD: ${DB_POSTGRESDB_PASSWORD}
       POSTGRES_DB: ${DB_POSTGRESDB_DATABASE}
     volumes:
-      - {{ tenant }}-n8n-db:/var/lib/postgresql/18/docker
+      - n8n-db:/var/lib/postgresql/18/docker
     networks:
-      - {{ tenant }}-n8n-internal
+      - n8n-internal
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  {{ tenant }}-n8n:
+  n8n:
     image: n8nio/n8n:2.29.0
     restart: unless-stopped
     env_file: .env
     volumes:
-      - {{ tenant }}-n8n-data:/home/node/.n8n
+      - n8n-data:/home/node/.n8n
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network={{ traefik_network }}"
@@ -31,17 +32,17 @@ services:
       - "traefik.http.routers.n8n-{{ tenant }}.tls.certresolver=letsencrypt"
     networks:
       - traefik
-      - {{ tenant }}-n8n-internal
+      - n8n-internal
     depends_on:
-      {{ tenant }}-n8n-postgres:
+      n8n-postgres:
         condition: service_healthy
 
 volumes:
-  "{{ tenant }}-n8n-db":
-  "{{ tenant }}-n8n-data":
+  "n8n-db":
+  "n8n-data":
 
 networks:
-  {{ tenant }}-n8n-internal:
+  n8n-internal:
   traefik:
     external: true
     name: {{ traefik_network }}

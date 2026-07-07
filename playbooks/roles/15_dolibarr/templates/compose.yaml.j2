@@ -1,13 +1,14 @@
 x-dolibarr: &dolibarr
   image: dolibarr/dolibarr:23.0.3
   volumes:
-    - {{ tenant }}-custom:/var/www/html/custom
-    - {{ tenant }}-documents:/var/www/documents
+    - custom:/var/www/html/custom
+    - documents:/var/www/documents
   env_file: .env
   restart: unless-stopped
 
+name: {{ tenant }}-dolibarr
 services:
-  {{ tenant }}-mariadb:
+  mariadb:
     image: mariadb:12.2-ubi
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -22,11 +23,11 @@ services:
       timeout: 5s
       retries: 3
     volumes:
-      - {{ tenant }}-db:/var/lib/mysql
+      - db:/var/lib/mysql
     networks:
-      - {{ tenant }}-internal
+      - internal
 
-  {{ tenant }}-web:
+  web:
     <<: *dolibarr
     environment:
       DOLI_CRON: 0
@@ -39,26 +40,26 @@ services:
       - "traefik.http.routers.dolibarr-{{ tenant }}.tls.certresolver=letsencrypt"
     networks:
       - traefik
-      - {{ tenant }}-internal
+      - internal
     depends_on:
-      {{ tenant }}-mariadb:
+      mariadb:
         condition: service_healthy
 
-  {{ tenant }}-cron:
+  cron:
     <<: *dolibarr
     environment:
       DOLI_CRON: 1
       DOLI_CRON_KEY: ${DOLI_CRON_KEY}
     networks:
-      - {{ tenant }}-internal
+      - internal
 
 volumes:
-  {{ tenant }}-documents:
-  {{ tenant }}-custom:
-  {{ tenant }}-db:
+  documents:
+  custom:
+  db:
 
 networks:
-  {{ tenant }}-internal:
+  internal:
   traefik:
     external: true
     name: ${TRAEFIK_NETWORK}
