@@ -15,6 +15,7 @@
     - element-config.json
     - hook-config.yml.j2
     - registration.yml.j2
+    - alert-webhook-relay.py
   register: messaging_config
 
 - name: Generate passkey

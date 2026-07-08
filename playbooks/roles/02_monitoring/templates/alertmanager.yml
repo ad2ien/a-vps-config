@@ -8,5 +8,5 @@ route:
 receivers:
   - name: webhook
     webhook_configs:
-      - url: "{{ monitoring_alert_webhook }}"
+      - url: "https://alert-relay.{{domain}}/{{ monitoring_alert_webhook_id }}"
         send_resolved: true
