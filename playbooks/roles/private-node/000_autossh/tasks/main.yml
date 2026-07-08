@@ -1,4 +1,27 @@
 ---
+- name: Check if SSH key exists
+  stat:
+    path: /home/{{ linux_user }}/{{ autossh_ssh_key_path }}
+  register: ssh_key_stat
+
+
+- name: Generate SSH key if not exists
+  openssh_keypair:
+    path: /home/{{ linux_user }}/{{ autossh_ssh_key_path }}
+    type: ed25519
+    owner: "{{ linux_user }}"
+    group: "{{ linux_user }}"
+    mode: "0600"
+  when: not ssh_key_stat.stat.exists
+  register: new_key
+
+- name: Add public key to master authorized_keys
+  authorized_key:
+    user: "{{ master_linux_user }}"
+    key: "{{ public_key.content | b64decode }}"
+    state: present
+  delegate_to: "{{ groups['master'][0] }}"
+
 - name: Install autossh
   apt:
     name: autossh
