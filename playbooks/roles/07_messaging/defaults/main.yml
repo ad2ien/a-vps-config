@@ -1,0 +1,4 @@
+hookshot_sub_domain: hook
+# openssl rand -base64 40
+hookshot_as_token:
+hookshot_hs_token:

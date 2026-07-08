@@ -13,15 +13,39 @@
   loop:
     - compose.yaml.j2
     - element-config.json
+    - hook-config.yml.j2
+    - registration.yml.j2
   register: messaging_config
 
-- name: Stop messaging stack
+- name: Generate passkey
+  command: >
+    openssl genpkey -algorithm RSA -out {{ app_path }}/messaging/passkey.pem
+    -pkeyopt rsa_keygen_bits:2048
+  args:
+    creates: "{{ app_path }}/messaging/passkey.pem"
+
+- name: Stop stack if config changed
   community.docker.docker_compose_v2:
     project_src: "{{ app_path }}/messaging"
     state: absent
   when: messaging_config.changed
 
-- name: Start messaging stack
+- name: Start stack
   community.docker.docker_compose_v2:
     project_src: "{{ app_path }}/messaging"
     state: present
+
+- name: Read registration file
+  slurp:
+    src: "{{ app_path }}/messaging/registration.yml"
+  register: registration_file
+
+- name: Instructions to register Hookshot
+  debug:
+    msg:
+      - "Send this in your Matrix admin room ({{ messaging_sub_domain }}.{{ domain }}):"
+      - ""
+      - "!admin appservices register"
+      - "```"
+      - "{{ registration_file.content | b64decode }}"
+      - "```"

@@ -1,0 +1,26 @@
+bridge:
+  domain: "{{ messaging_sub_domain }}.{{ domain }}"
+  url: "http://homeserver:8008"
+  port: 9993
+  bindAddress: 0.0.0.0
+  asToken: "{{ hookshot_as_token }}"
+  hsToken: "{{ hookshot_hs_token }}"
+
+listeners:
+  - port: 9000
+    bindAddress: 0.0.0.0
+    resources:
+      - webhooks
+
+generic:
+  enabled: true
+  urlPrefix: "https://{{ hookshot_sub_domain }}.{{ domain }}/"
+
+permissions:
+  - actor: "*"
+    services:
+      - service: "*"
+        level: admin
+
+logging:
+  level: info

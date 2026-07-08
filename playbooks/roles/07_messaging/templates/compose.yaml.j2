@@ -36,6 +36,22 @@ services:
       - "traefik.http.services.element.loadbalancer.server.port=80"
       - "traefik.http.routers.element.tls=true"
       - "traefik.http.routers.element.tls.certresolver=letsencrypt-dns"
+
+  hookshot:
+    image: ghcr.io/matrix-org/matrix-hookshot:7.4.2
+    restart: unless-stopped
+    volumes:
+      - ./hook-config.yml:/data/config.yml:ro
+      - ./registration.yml:/data/registration.yml:ro
+      - ./passkey.pem:/usr/bin/matrix-hookshot/passkey.pem
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network={{ traefik_network }}"
+      - "traefik.http.routers.hookshot.rule=Host(`hook.{{ domain }}`)"
+      - "traefik.http.routers.hookshot.entrypoints=websecure"
+      - "traefik.http.routers.hookshot.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.services.hookshot.loadbalancer.server.port=9000"
+
 volumes:
   db-conduwuit:
 
