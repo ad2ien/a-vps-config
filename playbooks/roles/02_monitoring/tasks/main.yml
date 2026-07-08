@@ -15,6 +15,8 @@
     - loki-config.yml
     - promtail-config.yml
     - prometheus.yml
+    - alertmanager.yml
+    - alerts.yml
     - .env.j2
     - provisioning/datasources/datasource.yml
   register: monitoring_config

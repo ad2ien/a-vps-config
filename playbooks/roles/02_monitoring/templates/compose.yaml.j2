@@ -21,8 +21,11 @@ services:
     image: prom/prometheus:v3.7.3
     container_name: prometheus
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alerts.yml:/etc/prometheus/alerts.yml:ro
       - ./provisioning/datasources:/etc/grafana/provisioning/datasources:ro
       - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
       - prometheus_data:/prometheus
@@ -37,6 +40,19 @@ services:
     networks:
       - internal
       - traefik
+
+  alertmanager:
+    image: prom/alertmanager:v0.33.1
+    container_name: alertmanager
+    restart: unless-stopped
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+    expose:
+      - 9093
+    networks:
+      - internal
 
   grafana:
     image: grafana/grafana-oss:11.5.8
@@ -92,7 +108,6 @@ volumes:
 
 networks:
   internal:
-    internal: true
   traefik:
     external: true
     name: ${TRAEFIK_NETWORK}
