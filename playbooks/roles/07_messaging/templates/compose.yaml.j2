@@ -1,0 +1,45 @@
+services:
+  homeserver:
+    image: "forgejo.ellis.link/continuwuation/continuwuity:v0.5.10"
+    restart: unless-stopped
+    command: /sbin/conduwuit
+    volumes:
+      - db-conduwuit:/var/lib/continuwuity
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.continuwuity.rule=(Host(`{{messaging_sub_domain}}.{{domain}}`))"
+      - "traefik.http.routers.continuwuity.entrypoints=websecure"
+      - "traefik.http.routers.continuwuity.tls=true"
+      - "traefik.http.routers.continuwuity.service=continuwuity"
+      - "traefik.http.services.continuwuity.loadbalancer.server.port=8008"
+      - "traefik.http.routers.continuwuity.tls.certresolver=letsencrypt-dns"
+    environment:
+      CONTINUWUITY_SERVER_NAME: "{{messaging_sub_domain}}.{{domain}}"
+      CONTINUWUITY_DATABASE_PATH: /var/lib/continuwuity
+      CONTINUWUITY_ADDRESS: 0.0.0.0
+      CONTINUWUITY_PORT: 8008
+      CONTINUWUITY_WELL_KNOWN: |
+        {
+        client=https://{{messaging_sub_domain}}.{{domain}},
+        server={{messaging_sub_domain}}.{{domain}}:443
+        }
+
+  element:
+    image: vectorim/element-web:v1.12.13
+    restart: unless-stopped
+    volumes:
+      - ./element-config.json:/app/config.json
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.element.rule=Host(`{{element_sub_domain}}.${DOMAIN}`)"
+      - "traefik.http.routers.element.entrypoints=websecure"
+      - "traefik.http.services.element.loadbalancer.server.port=80"
+      - "traefik.http.routers.element.tls=true"
+      - "traefik.http.routers.element.tls.certresolver=letsencrypt-dns"
+volumes:
+  db-conduwuit:
+
+networks:
+  default:
+    external: true
+    name: "{{ traefik_network }}"

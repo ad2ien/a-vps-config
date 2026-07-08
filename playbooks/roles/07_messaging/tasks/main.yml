@@ -1,30 +1,27 @@
 ---
-# Matrix messaging with Conduit server and Element webapp
-
-- name: Create /srv/messaging
+- name: Create messaging
   file:
-    path: /{{ app_path }}/messaging
+    path: "{{ app_path }}/messaging"
     state: directory
 
-- name: Copy template files to /srv/messaging
+- name: Copy template files to messaging
   template:
     src: "{{ item }}"
-    dest: /srv/messaging/{{ item | replace('.template', '') }}
+    dest: "{{ app_path }}/messaging/{{ item | replace('.j2', '') }}"
     mode: "0644"
+    owner: "{{ ansible_user }}"
   loop:
-    - docker-compose.yml
+    - compose.yaml.j2
     - element-config.json
-    - matrix.conf
-    - .env.template
   register: messaging_config
 
 - name: Stop messaging stack
   community.docker.docker_compose_v2:
-    project_src: /srv/messaging
+    project_src: "{{ app_path }}/messaging"
     state: absent
   when: messaging_config.changed
 
 - name: Start messaging stack
   community.docker.docker_compose_v2:
-    project_src: /srv/messaging
+    project_src: "{{ app_path }}/messaging"
     state: present
