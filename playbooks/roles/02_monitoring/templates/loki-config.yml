@@ -49,9 +49,9 @@ ruler:
 analytics:
   reporting_enabled: false
 
-# limits_config:
-#   ingestion_rate_mb: 1000000  # Set to a very high value
-#   ingestion_burst_size_mb: 1000000  # Set to a very high value
-#   max_global_streams_per_user: 0  # 0 means unlimited
-#   max_query_series: 0  # 0 means unlimited
-#   max_query_parallelism: 1000  # Set to a high value
+limits_config:
+  ingestion_rate_mb: 1000000  # Set to a very high value
+  ingestion_burst_size_mb: 1000000  # Set to a very high value
+  max_global_streams_per_user: 0  # 0 means unlimited
+  max_query_series: 0  # 0 means unlimited
+  max_query_parallelism: 1000  # Set to a high value

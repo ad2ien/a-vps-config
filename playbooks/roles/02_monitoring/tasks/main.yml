@@ -1,30 +1,31 @@
 ---
-- name: Create /srv/monitoring
+- name: Create monitoring
   file:
-    path: /{{ app_path }}/monitoring
+    path: "{{ app_path }}/monitoring"
     state: directory
 
-- name: Copy monitoring template files to /srv/monitoring
+- name: Copy monitoring template files to monitoring
   template:
     src: "{{ item }}"
-    dest: /srv/monitoring/{{ item | replace('.template', '') }}
+    dest: "{{ app_path }}/monitoring/{{ item | replace('.j2', '') }}"
     mode: "0644"
   loop:
-    - docker-compose.yml
+    - compose.yaml.j2
     - grafana.ini
     - loki-config.yml
     - promtail-config.yml
     - prometheus.yml
-    - .env.template
+    - .env.j2
+    - provisioning/datasources/datasource.yml
   register: monitoring_config
 
 - name: Stop monitoring
   community.docker.docker_compose_v2:
-    project_src: /srv/monitoring
+    project_src: "{{ app_path }}/monitoring"
     state: absent
   when: monitoring_config.changed
 
 - name: Start monitoring
   community.docker.docker_compose_v2:
-    project_src: /srv/monitoring
+    project_src: "{{ app_path }}/monitoring"
     state: present

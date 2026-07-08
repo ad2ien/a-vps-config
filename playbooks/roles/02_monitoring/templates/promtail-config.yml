@@ -18,12 +18,19 @@ scrape_configs:
       - docker: {}
       - static_labels:
           job: "promtail"
+      - drop:
+          older_than: 168h
+          drop_counter_reason: "timestamp_too_old"
     relabel_configs:
       - source_labels: ["__meta_docker_container_name"]
         regex: "/(.*)"
         target_label: "container"
 
   - job_name: system
+    pipeline_stages:
+      - drop:
+          older_than: 168h
+          drop_counter_reason: "timestamp_too_old"
     static_configs:
       - targets:
           - localhost
@@ -32,6 +39,10 @@ scrape_configs:
           __path__: /var/log/*log
 
   - job_name: traefik
+    pipeline_stages:
+      - drop:
+          older_than: 168h
+          drop_counter_reason: "timestamp_too_old"
     static_configs:
       - targets:
           - localhost

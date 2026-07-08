@@ -17,29 +17,14 @@ services:
     networks:
       - internal
 
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.52.1
-    container_name: cadvisor
-    command:
-      - --docker_only
-      - --enable_metrics=app,cpu,disk,diskIO,memory,network,process
-      - --housekeeping_interval=30s
-    expose:
-      - 8080
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:rw
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-    networks:
-      - internal
-
   prometheus:
     image: prom/prometheus:v3.7.3
     container_name: prometheus
     restart: unless-stopped
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
       - prometheus_data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -59,7 +44,7 @@ services:
     volumes:
       - ./grafana.ini:/etc/grafana/grafana.ini:ro
       - grafana_data:/var/lib/grafana
-      # - ./provisioning:/etc/grafana/provisioning
+      - ./provisioning/datasources:/etc/grafana/provisioning/datasources:ro
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
