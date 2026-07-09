@@ -9,6 +9,7 @@
     src: "{{ item }}"
     dest: "{{ app_path }}/monitoring/{{ item | replace('.j2', '') }}"
     mode: "0644"
+    owner: "{{ ansible_user }}"
   loop:
     - compose.yaml.j2
     - grafana.ini
