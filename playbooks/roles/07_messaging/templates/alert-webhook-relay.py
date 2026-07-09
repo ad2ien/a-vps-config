@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Alertmanager → Matrix webhook relay
+Webhook relay → Matrix via Hookshot
 
-Receives Alertmanager webhook payloads and forwards them as clean text
-messages to a Hookshot generic webhook. The path from the incoming request
-is preserved, so the Hookshot webhook token stays in the URL.
+Accepts Alertmanager or Dockhand JSON payloads and forwards them as
+clean text messages to a Hookshot generic webhook. The path from the
+incoming request is preserved, so the Hookshot webhook token stays
+in the URL.
 
-Input (from Alertmanager):
-  POST /512aa5cc-...  (Alertmanager JSON payload)
+Alertmanager input:
   {
     "status": "firing",
     "groupLabels": {"alertname": "HighDiskUsage"},
@@ -15,10 +15,17 @@ Input (from Alertmanager):
       "annotations": {"description": "Disk on / is 86.05% full (threshold: 80%)"}
     }]
   }
+  → "🔥 FIRING: HighDiskUsage\n  • Disk on / is 86.05% full (threshold: 80%)"
 
-Output (to Hookshot):
-  POST https://hook.{$domain}/512aa5cc-...
-  {"text": "🔥 FIRING: HighDiskUsage\n  • Disk on / is 86.05% full (threshold: 80%)"}
+Dockhand input:
+  {
+    "title": "Dockhand Test Notification",
+    "message": "This is a test notification from Dockhand.",
+    "type": "info",
+    "environment": "production",
+    "timestamp": "2026-07-09T06:29:25.838Z"
+  }
+  → "ℹ️ Dockhand Test Notification\nThis is a test notification from Dockhand.\nEnvironment: production"
 
 Environment:
   HOOKSHOT_BASE_URL  Target Hookshot base (default: https://hook.ad2ien.dev)
@@ -34,7 +41,15 @@ from urllib.error import URLError
 HOOKSHOT_BASE = os.environ.get("HOOKSHOT_BASE_URL", "https://hook.ad2ien.dev")
 
 
-def format_alert(payload):
+def format_payload(payload):
+    if "groupLabels" in payload or "alerts" in payload:
+        return _format_alertmanager(payload)
+    if "title" in payload or "message" in payload:
+        return _format_dockhand(payload)
+    return json.dumps(payload, indent=2)
+
+
+def _format_alertmanager(payload):
     status = payload.get("status", "unknown")
     alertname = payload.get("groupLabels", {}).get("alertname", "Unknown")
 
@@ -46,6 +61,24 @@ def format_alert(payload):
         desc = ann.get("description", "")
         if desc:
             lines.append(f"  • {desc}")
+
+    return "\n".join(lines)
+
+
+def _format_dockhand(payload):
+    title = payload.get("title", "Notification")
+    message = payload.get("message", "")
+    ptype = payload.get("type", "info")
+    env = payload.get("environment")
+
+    icons = {"info": "ℹ️", "success": "✅", "warning": "⚠️", "error": "🚨"}
+    icon = icons.get(ptype, "📢")
+
+    lines = [f"{icon} {title}"]
+    if message:
+        lines.append(message)
+    if env:
+        lines.append(f"Environment: {env}")
 
     return "\n".join(lines)
 
@@ -63,7 +96,7 @@ class AlertHandler(BaseHTTPRequestHandler):
             self.wfile.write(b"invalid json")
             return
 
-        text = format_alert(payload)
+        text = format_payload(payload)
         forward = json.dumps({"text": text}).encode("utf-8")
         target = f"{HOOKSHOT_BASE}{self.path}"
 
