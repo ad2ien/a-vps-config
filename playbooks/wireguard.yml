@@ -99,6 +99,18 @@
       loop: "{{ groups['private_network_node'] | zip(client_public_keys.results) | list }}"
       register: peer_config
 
+    # - name: "Add nft rule : sudo nft add rule ip nat POSTROUTING ip saddr 10.13.13.0/24 oifname eth0 masquerade"
+    #   nftables:
+    #     tables:
+    #       example:
+    #         chains:
+    #           translate:
+    #             hook: 'postrouting'
+    #             type: 'nat'
+    #             policy: 'accept'
+    #             rules:
+    #               - {'src': '10.13.13.0/24', oif: '{{ network_interface }}', masquerade: true}
+
     - name: Enable and start WireGuard
       systemd:
         name: wg-quick@wg0

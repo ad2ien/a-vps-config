@@ -1,36 +1,41 @@
 ---
+- name: Set SSH key filename
+  ansible.builtin.set_fact:
+    autossh_ssh_key_file: "{{ device_name }}-{{ device_master }}"
+
 - name: Check if SSH key exists
-  stat:
-    path: /home/{{ linux_user }}/{{ autossh_ssh_key_path }}
+  ansible.builtin.stat:
+    path: /home/{{ linux_user }}/.ssh/{{ autossh_ssh_key_file }}
   register: ssh_key_stat
 
-
 - name: Generate SSH key if not exists
-  openssh_keypair:
-    path: /home/{{ linux_user }}/{{ autossh_ssh_key_path }}
+  community.crypto.openssh_keypair:
+    path: /home/{{ linux_user }}/.ssh/{{ autossh_ssh_key_file }}
     type: ed25519
     owner: "{{ linux_user }}"
     group: "{{ linux_user }}"
     mode: "0600"
+    comment: "{{ autossh_ssh_key_file }}"
   when: not ssh_key_stat.stat.exists
   register: new_key
 
 - name: Add public key to master authorized_keys
-  authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ master_linux_user }}"
-    key: "{{ public_key.content | b64decode }}"
+    key: "{{ new_key.public_key }}"
     state: present
   delegate_to: "{{ groups['master'][0] }}"
+  when: new_key.changed
 
 - name: Install autossh
-  apt:
+  ansible.builtin.apt:
     name: autossh
     state: present
     update_cache: yes
   become: true
 
 - name: Create systemd service directory for autossh-tunnel
-  file:
+  ansible.builtin.file:
     path: /etc/systemd/system/autossh-tunnel.service.d
     state: directory
     owner: root
@@ -39,7 +44,7 @@
   become: true
 
 - name: Create autossh-tunnel systemd service
-  template:
+  ansible.builtin.template:
     src: autossh-tunnel.service.j2
     dest: /etc/systemd/system/autossh-tunnel.service
     owner: root
@@ -49,23 +54,23 @@
   register: autossh_service
 
 - name: Reload systemd daemon
-  systemd_service:
+  ansible.builtin.systemd_service:
     daemon_reload: true
   become: true
   when: autossh_service.changed
 
 - name: Enable and start autossh-tunnel service
-  systemd_service:
+  ansible.builtin.systemd_service:
     name: autossh-tunnel
     enabled: true
     state: started
   become: true
 
 - name: Display autossh-tunnel service status
-  command: systemctl status autossh-tunnel --no-pager
+  ansible.builtin.command: systemctl status autossh-tunnel --no-pager
   register: autossh_status
   become: true
 
 - name: Show autossh-tunnel service status
-  debug:
+  ansible.builtin.debug:
     msg: "{{ autossh_status.stdout_lines }}"
