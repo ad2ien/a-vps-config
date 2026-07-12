@@ -1,6 +1,4 @@
 ---
-# MediaMtx server
-
 - name: Create mediamtx
   file:
     path: "{{ app_path }}/mediamtx"
@@ -11,13 +9,13 @@
 - name: Copy template files to mediamtx
   template:
     src: "{{ item }}"
-    dest: "{{ app_path }}/mediamtx/{{ item | replace('.template', '') | replace('.jinja', '.yml') }}"
+    dest: "{{ app_path }}/mediamtx/{{ item | replace('.j2', '') }}"
     mode: "0644"
     owner: "{{ linux_user }}"
   loop:
     - compose.yaml
-    - mediamtx.jinja
-    - .env.template
+    - mediamtx.yml.j2
+    - .env.j2
   register: mediamtx_config
 
 - name: Create certs folder
@@ -56,16 +54,6 @@
   loop:
     - 8322
     - 8554
-
-- name: Docker login to this stack registry
-  community.docker.docker_login:
-    registry: "{{ registry_sub_domain }}.{{ domain }}"
-    username: "{{ registry_user }}"
-    password: "{{ registry_pw }}"
-
-- name: Pull cutomized Shinobi image
-  community.docker.docker_image_pull:
-    name: "{{ registry_sub_domain }}.{{ domain }}/shinobi:latest"
 
 - name: Stop mediamtx container
   community.docker.docker_compose_v2:

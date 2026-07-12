@@ -44,3 +44,5 @@
       tags: paheko
     - role: 20_n8n
       tags: n8n
+    - role: private-node/04_video-server
+      tags: video

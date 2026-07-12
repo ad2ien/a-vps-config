@@ -1,6 +1,6 @@
 services:
   mediamtx:
-    image: bluenviron/mediamtx:1.11.3
+    image: bluenviron/mediamtx:1.19.2
     restart: unless-stopped
     volumes:
       - ./mediamtx.yml:/mediamtx.yml
@@ -9,10 +9,10 @@ services:
       - 127.0.0.1:8322:8322/tcp
       - 8554:8554/tcp
     networks:
-      - traefik
+      - internal
 
   shinobi:
-    image: "{{ registry_sub_domain }}.{{ domain }}/shinobi:latest"
+    image: "ad2ien/shinobi:latest"
     restart: unless-stopped
     environment:
       - DB_HOST=shinobi-db
@@ -20,14 +20,16 @@ services:
       - DB_PASSWORD=${SHINOBI_DB_PASSWORD}
       - DB_DATABASE=ccio
       - SHINOBI_UPDATE=false
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    mem_limit: 128m
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=${TRAEFIK_NETWORK}"
       - "traefik.http.routers.shinobi.rule=Host(`shinobi.${DOMAIN}`)"
-      - "traefik.http.routers.shinobi.entrypoints=web"
+      - "traefik.http.routers.shinobi.entrypoints=websecure"
       - "traefik.http.services.shinobi.loadbalancer.server.port=8080"
+      - "traefik.http.routers.shinobi.tls.certresolver=letsencrypt-dns"
     networks:
       - traefik
       - internal
