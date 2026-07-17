@@ -1,0 +1,199 @@
+{
+  "name": "Matrix notif",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "WEBHOOK_ID",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -448,
+        -32
+      ],
+      "id": "d222751e-01c4-491d-84f8-a0f819b226ca",
+      "name": "Webhook",
+      "webhookId": "WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.all()[0].json;\nconst data = item.body || item;\nconst query = item.query;\n\nconst icons = {\n  info: \"ℹ️\",\n  success: \"✅\",\n  warning: \"⚠️\",\n  error: \"🚨\"\n};\n\nconst icon = icons[data.type] || \"📢\";\nconst lines = [`${icon} ${data.title || \"Notification\"}`];\n\nif (data.message) lines.push(data.message);\nif (data.environment) lines.push(`Environment: ${data.environment}`);\n\nreturn {\n  room_id: query.room,\n  text: lines.join(\"\\n\"),\n  msgtype: \"m.text\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "e08813b0-7ec9-499e-a027-020bc3395578",
+      "name": "Map Dockhand Msg"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.query.type }}",
+                    "rightValue": "dockhand",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "80789560-235c-4ab6-a756-a55b0ee9cb7a"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "7ae419fa-447d-4d4b-8401-3bd571b12e6a",
+                    "leftValue": "={{ $json.query.type }}",
+                    "rightValue": "alertmanager",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        32
+      ],
+      "id": "113271c4-a8c6-4695-bf3b-455b275a8530",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "roomId": "=!{{ $json.room_id }}",
+        "text": "={{ $json.text }}",
+        "messageType": "=m.text"
+      },
+      "type": "n8n-nodes-base.matrix",
+      "typeVersion": 1,
+      "position": [
+        768,
+        144
+      ],
+      "id": "2579deb7-764a-4f0d-a833-ec876348201d",
+      "name": "Create a message",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "credentials": {
+        "matrixApi": {
+          "id": "LIVi666z2jYDeaXj",
+          "name": "Matrix account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.all()[0].json;\nconst data = item.body;\nconst query = item.query;\nconst room = query && query.room ? `${query.room}` : \"\";\n\nconst status = data.status || \"unknown\";\nconst alertname = (data.groupLabels && data.groupLabels.alertname) || \"Unknown\";\nconst prefix = status === \"resolved\" ? \"✅ RESOLVED\" : \"🔥 FIRING\";\nconst lines = [`${prefix}: ${alertname}`];\n\nfor (const alert of data.alerts || []) {\n  const ann = alert.annotations || {};\n  const mountpoint = (alert.labels && alert.labels.mountpoint) || \"\";\n  const desc = ann.description || \"\";\n  if (desc) lines.push(`  • ${mountpoint} ${desc}`);\n}\n\nreturn {\n  room_id: room,\n  text: lines.join(\"\\n\"),\n  msgtype: \"m.text\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        224
+      ],
+      "id": "37bdef36-a8a3-47a2-be0a-6e4818d3a876",
+      "name": "Map Alertmanager Msg"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Dockhand Msg": {
+      "main": [
+        [
+          {
+            "node": "Create a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Map Dockhand Msg",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Map Alertmanager Msg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Alertmanager Msg": {
+      "main": [
+        [
+          {
+            "node": "Create a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "600a346a-c8ea-48a2-9a46-36174e3614ce",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "259a4d17ed75427e8008f6465c84e3153c80543669f9c7813f3d3754b7539b7e"
+  },
+  "nodeGroups": [],
+  "id": "aCd7tdCUieaw1UfO",
+  "tags": []
+}

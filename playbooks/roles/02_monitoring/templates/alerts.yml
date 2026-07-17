@@ -6,20 +6,20 @@ groups:
         expr: |
           (1 - (node_filesystem_avail_bytes{mountpoint!~"^/(sys|proc|dev|host|etc)($|/)"}
             / node_filesystem_size_bytes{mountpoint!~"^/(sys|proc|dev|host|etc)($|/)"}
-          )) * 100 > 80
+          )) * 100 > 86
         for: 5m
         labels:
           severity: warning
         annotations:
-          summary: "{% raw %}Disk usage >80% on {{ $labels.mountpoint }}{% endraw %}"
-          description: "{% raw %}Disk on {{ $labels.mountpoint }} is {{ $value | humanize }}% full (threshold: 80%){% endraw %}"
+          summary: "{% raw %}Disk usage >86% on {{ $labels.mountpoint }}{% endraw %}"
+          description: "{% raw %}Disk on {{ $labels.mountpoint }} is {{ $value | humanize }}% full (threshold: 86%){% endraw %}"
 
       - alert: HighRamUsage
         expr: |
-          (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
+          (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 86
         for: 2m
         labels:
           severity: warning
         annotations:
-          summary: "RAM usage >80%"
-          description: "{% raw %}RAM usage is {{ $value | humanize }}% (threshold: 80%){% endraw %}"
+          summary: "RAM usage >86%"
+          description: "{% raw %}RAM usage is {{ $value | humanize }}% (threshold: 86%){% endraw %}"
