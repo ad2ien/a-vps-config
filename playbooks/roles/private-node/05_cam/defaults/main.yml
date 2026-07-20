@@ -1,0 +1,4 @@
+# Same variable available in the role `04_video-server/`
+master_wg_ip:
+mediamtx_user:
+mediamtx_password:

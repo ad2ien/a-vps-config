@@ -51,6 +51,8 @@
     rule: allow
     port: "{{ item }}"
     proto: tcp
+    # only from wireguard
+    from: "10.13.13.0/24"
   loop:
     - 8322
     - 8554

@@ -35,7 +35,7 @@
       set -e
       
       WEBCAM_DEVICE="/dev/video0"
-      MEDIAMTX_URL="localhost:8554"
+      MEDIAMTX_URL="{{ master_wg_ip }}:8554"
       MEDIAMTX_USER="{{ mediamtx_user }}"
       MEDIAMTX_PASSWORD="{{ mediamtx_password }}"
       MEDIAMTX_PATH=house.sdp
