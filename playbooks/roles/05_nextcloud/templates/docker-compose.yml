@@ -24,7 +24,7 @@ services:
       - internal
 
   app:
-    image: nextcloud:32.0.2
+    image: nextcloud:32.0.13
     restart: unless-stopped
     links:
       - db-pg
@@ -55,7 +55,7 @@ services:
       - internal
 
   aio-talk:
-    image: ghcr.io/nextcloud-releases/aio-talk:20251031_122139
+    image: ghcr.io/nextcloud-releases/aio-talk:20260609_115915
     container_name: nextcloud-aio-talk
     environment:
       - NC_DOMAIN={{nextcloud_sub_domain}}.${DOMAIN}
