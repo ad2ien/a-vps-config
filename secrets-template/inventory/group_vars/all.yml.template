@@ -37,8 +37,12 @@ nextcloud_turn_signaling_secret:
 registry_pw:
 registry_user:
 
-redirection_sub_domain:
-redirection_url:
+redirection_sub_domain_1:
+redirection_url_1:
+redirection_sub_domain_2:
+redirection_url_2:
+redirection_sub_domain_3:
+redirection_url_3:
 
 mediamtx_user:
 mediamtx_password:

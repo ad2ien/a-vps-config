@@ -14,6 +14,10 @@ services:
       - "traefik.http.routers.redirect-2.rule=Host(`{{ redirection_sub_domain_2 }}.{{ domain }}`)"
       - "traefik.http.routers.redirect-2.entrypoints=websecure"
       - "traefik.http.routers.redirect-2.tls.certresolver=letsencrypt-dns"
+
+      - "traefik.http.routers.redirect-3.rule=Host(`{{ redirection_sub_domain_3 }}.{{ domain }}`)"
+      - "traefik.http.routers.redirect-3.entrypoints=websecure"
+      - "traefik.http.routers.redirect-3.tls.certresolver=letsencrypt-dns"
 networks:
   default:
     external: true
