@@ -1,0 +1,38 @@
+name: "{{ tenant }}-video"
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:1.19.2
+    restart: unless-stopped
+    volumes:
+      - ./mediamtx.yml:/mediamtx.yml
+      - ./certs:/certs
+    ports:
+      - 127.0.0.1:8322:8322/tcp
+      - 127.0.0.1:8554:8554/tcp
+    networks:
+      - internal
+
+  motioneye:
+    image: motioneyeproject/motioneye:edge
+    restart: unless-stopped
+    volumes:
+      - ./config:/etc/motioneye
+      - motioneye-data:/var/lib/motioneye
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network={{ traefik_network }}"
+      - "traefik.http.routers.motioneye-{{ tenant }}.rule=Host(`{{ motioneye_subdomain }}{{ (tenant == default_tenant) | ternary('', '.' + tenant ) }}.{{ domain }}`)"
+      - "traefik.http.routers.motioneye-{{ tenant }}.entrypoints=websecure"
+      - "traefik.http.services.motioneye-{{ tenant }}.loadbalancer.server.port=8765"
+      - "traefik.http.routers.motioneye-{{ tenant }}.tls.certresolver=letsencrypt{{ (tenant == default_tenant) | ternary('-dns', '' ) }}"
+    networks:
+      - traefik
+      - internal
+volumes:
+  motioneye-data:
+
+networks:
+  internal:
+  traefik:
+    external: true
+    name: ${TRAEFIK_NETWORK}

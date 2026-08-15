@@ -16,7 +16,7 @@
     - compose.yaml
     - mediamtx.yml.j2
     - .env.j2
-  register: mediamtx_config
+  register: stack_config
 
 - name: Create certs folder
   file:
@@ -57,11 +57,11 @@
     - 8322
     - 8554
 
-- name: Stop mediamtx container
+- name: Stop containers
   community.docker.docker_compose_v2:
     project_src: "{{ app_path }}/mediamtx"
     state: absent
-  when: mediamtx_config.changed or mediamtx_cert.changed
+  when: stack_config.changed or mediamtx_cert.changed
 
 - name: Start mediamtx stack
   community.docker.docker_compose_v2:
