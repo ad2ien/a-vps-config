@@ -1,0 +1,19 @@
+# Managed by Ansible
+# Rotate all log files directly under /var/log:
+# - rotate monthly, keeping at most 5 archives (~5 months)
+# - compress old logs with gzip (delaycompress keeps the most recent
+#   rotated file uncompressed so services can still write to it)
+# - maxsize: any file over 100M is rotated on the next daily logrotate
+#   run even if the monthly interval hasn't been reached yet, which is
+#   what catches already-huge log files (e.g. on first deploy)
+/var/log/*.log {
+    monthly
+    rotate 5
+    maxsize 100M
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0640 root adm
+    sharedscripts
+}
