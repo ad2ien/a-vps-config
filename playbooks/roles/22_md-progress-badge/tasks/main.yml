@@ -1,0 +1,26 @@
+---
+- name: Create md-progress-badge
+  file:
+    path: "{{ app_path }}/md-progress-badge"
+    state: directory
+
+- name: Copy template files to md-progress-badge
+  template:
+    src: "{{ item }}"
+    dest: "{{ app_path }}/md-progress-badge/{{ item | replace('.j2', '') }}"
+    mode: "0644"
+  loop:
+    - compose.yaml
+    - .env.j2
+  register: mdprogressbadge_config
+
+- name: Stop stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_path }}/md-progress-badge"
+    state: absent
+  when: mdprogressbadge_config.changed
+
+- name: Start stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_path }}/md-progress-badge"
+    state: present

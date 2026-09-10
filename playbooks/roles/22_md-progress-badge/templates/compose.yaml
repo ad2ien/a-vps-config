@@ -1,0 +1,18 @@
+services:
+  md-progress-badge:
+    image: ghcr.io/ad2ien/md-tasks-progress-badge:latest
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK}"
+      - "traefik.http.routers.md-progress-badge.rule=Host(`md-badge.${DOMAIN}`)"
+      - "traefik.http.routers.md-progress-badge.middlewares=md-progress-badge-strip"
+      - "traefik.http.middlewares.md-progress-badge-strip.stripprefix.prefixes=/progress"
+      - "traefik.http.routers.md-progress-badge.entrypoints=websecure"
+      - "traefik.http.services.md-progress-badge.loadbalancer.server.port=1983"
+      - "traefik.http.routers.md-progress-badge.tls.certresolver=letsencrypt-dns"
+
+networks:
+  default:
+    external: true
+    name: ${TRAEFIK_NETWORK}
