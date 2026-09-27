@@ -6,7 +6,7 @@
 # - maxsize: any file over 100M is rotated on the next daily logrotate
 #   run even if the monthly interval hasn't been reached yet, which is
 #   what catches already-huge log files (e.g. on first deploy)
-/var/log/*.log {
+/var/log/**/*.log {
     monthly
     rotate 5
     maxsize 100M

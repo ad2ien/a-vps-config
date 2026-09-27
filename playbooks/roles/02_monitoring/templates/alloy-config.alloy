@@ -1,0 +1,151 @@
+// =============================================================================
+// Grafana Alloy configuration for the monitoring stack.
+//
+// - Collects stdout/stderr logs from every Docker container (Docker socket),
+//   including the Traefik access logs (JSON on stdout).
+// - Collects the host /var/log/*log files.
+// - Parses Traefik's JSON access logs into indexed labels (low cardinality)
+//   and structured metadata (high cardinality, queryable but not indexed).
+// - Ships everything to Loki.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Docker container log collection
+// -----------------------------------------------------------------------------
+
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "containers" {
+  targets = discovery.docker.containers.targets
+
+  // "/traefik" -> "traefik"
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_log_stream"]
+    target_label  = "stream"
+  }
+}
+
+loki.source.docker "containers" {
+  host             = "unix:///var/run/docker.sock"
+  targets          = discovery.relabel.containers.output
+  labels           = { job = "docker" }
+  refresh_interval = "15s"
+  forward_to       = [loki.process.pipeline.receiver]
+}
+
+// -----------------------------------------------------------------------------
+// Host log collection
+// -----------------------------------------------------------------------------
+
+loki.source.file "host" {
+  targets = [
+    {
+      __path__ = "/var/log/*log",
+      job      = "varlogs",
+    },
+  ]
+  forward_to = [loki.process.pipeline.receiver]
+
+  // Alloy does not expand globs in `__path__` by default; enable the
+  // built-in file discovery so `/var/log/*log` is matched.
+  file_match {
+    enabled = true
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Processing pipeline
+// -----------------------------------------------------------------------------
+
+loki.process "pipeline" {
+  forward_to = [loki.write.local.receiver]
+
+  // Safety net: never ingest entries older than a week.
+  stage.drop {
+    older_than          = "168h"
+    drop_counter_reason = "timestamp_too_old"
+  }
+
+  // ---------------------------------------------------------------------------
+  // Traefik access logs
+  //
+  // Traefik is configured with `accessLog.format: json` and writes to stdout,
+  // so each access log line is a JSON object. Traefik's own service logs are
+  // plain text; because `drop_malformed` defaults to false those lines simply
+  // pass through this stage untouched.
+  // ---------------------------------------------------------------------------
+  stage.match {
+    selector = "{job=\"docker\", container=\"traefik\"}"
+
+    stage.json {
+      expressions = {
+        client_host   = "ClientHost",
+        client_addr   = "ClientAddr",
+        method        = "RequestMethod",
+        path          = "RequestPath",
+        host          = "RequestHost",
+        protocol      = "RequestProtocol",
+        scheme        = "RequestScheme",
+        status        = "DownstreamStatus",
+        origin_status = "OriginStatus",
+        duration_ns   = "Duration",
+        router        = "RouterName",
+        service       = "ServiceName",
+        user_agent    = "\"request_User-Agent\"",
+        referer       = "\"request_Referer\"",
+        start_utc     = "StartUTC",
+      }
+    }
+
+    // High-cardinality values: queryable, but not indexed.
+    stage.structured_metadata {
+      values = {
+        client_ip     = "client_host",
+        client_addr   = "client_addr",
+        path          = "",
+        host          = "",
+        protocol      = "",
+        scheme        = "",
+        user_agent    = "",
+        referer       = "",
+        origin_status = "",
+        duration_ns   = "",
+      }
+    }
+
+    // Low-cardinality values: safe as indexed labels.
+    stage.labels {
+      values = {
+        method  = "",
+        status  = "",
+        router  = "",
+        service = "",
+      }
+    }
+
+    // Trust Traefik's own start time for access logs.
+    stage.timestamp {
+      source            = "start_utc"
+      format            = "RFC3339Nano"
+      action_on_failure = "skip"
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Output
+// -----------------------------------------------------------------------------
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

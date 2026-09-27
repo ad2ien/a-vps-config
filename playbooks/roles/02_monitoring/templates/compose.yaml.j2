@@ -1,6 +1,6 @@
 services:
   node-exporter:
-    image: prom/node-exporter:v1.11.1
+    image: prom/node-exporter:v1.12.1
     container_name: node-exporter
     restart: unless-stopped
     volumes:
@@ -18,7 +18,7 @@ services:
       - internal
 
   prometheus:
-    image: prom/prometheus:v3.11.3
+    image: prom/prometheus:v3.15.0
     container_name: prometheus
     restart: unless-stopped
     ports:
@@ -78,19 +78,27 @@ services:
       - traefik
       - internal
 
-  promtail:
-    image: grafana/promtail:3.5.8
+  alloy:
+    image: grafana/alloy:v1.20.0
+    container_name: alloy
     restart: unless-stopped
-    command: -config.file=/etc/promtail/promtail-config.yml
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --storage.path=/var/lib/alloy/data
+      - --server.http.listen-addr=0.0.0.0:12345
     volumes:
+      - ./alloy-config.alloy:/etc/alloy/config.alloy:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/log:/var/log:ro
-      - ./promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+      - alloy_data:/var/lib/alloy/data
+    expose:
+      - 12345
     networks:
       - internal
 
   loki:
-    image: grafana/loki:3.5.8
+    image: grafana/loki:3.7.8
     volumes:
       - ./loki-config.yml:/etc/loki/loki-config.yml:ro
     expose:
@@ -103,6 +111,7 @@ services:
 volumes:
   prometheus_data: {}
   grafana_data:
+  alloy_data:
 
 networks:
   internal:

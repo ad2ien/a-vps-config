@@ -14,7 +14,7 @@
     - compose.yaml.j2
     - grafana.ini
     - loki-config.yml
-    - promtail-config.yml
+    - alloy-config.alloy
     - prometheus.yml
     - alertmanager.yml
     - alerts.yml

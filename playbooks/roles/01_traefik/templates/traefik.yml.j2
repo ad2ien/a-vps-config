@@ -109,20 +109,27 @@ log:
 # Optional
 #
 accessLog:
-  # Sets the file path for the access log. If not specified, stdout will be used.
-  # Intermediate directories are created if necessary.
+  # Access logs are written to stdout as JSON so Grafana Alloy can collect
+  # them from the Docker socket and parse them into structured fields.
   #
-  # Optional
-  # Default: os.Stdout
-  #
-  filePath: /var/log/traefik/log.txt
-
   # Format is either "json" or "common".
   #
   # Optional
   # Default: "common"
   #
   format: json
+
+  # Which fields/headers to keep. Header fields are prefixed with
+  # `request_`, `origin_` or `downstream_`. Headers default to `drop`,
+  # so User-Agent and Referer must be kept explicitly.
+  #
+  fields:
+    defaultMode: keep
+    headers:
+      defaultMode: drop
+      names:
+        User-Agent: keep
+        Referer: keep
 
 ################################################################
 # API and dashboard configuration

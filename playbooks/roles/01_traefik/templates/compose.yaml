@@ -7,6 +7,12 @@ services:
       - "80:80"
       - "443:443"
       # - "8080:8080"
+    # Cap the Docker json-file logs now that access logs go to stdout.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - ./acme:/etc/traefik/certs
