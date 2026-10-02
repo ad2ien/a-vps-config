@@ -901,6 +901,253 @@
         }
       }
     },
+    "panel-44": {
+      "kind": "Panel",
+      "spec": {
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "P8E80F9AEF21F6940"
+                    },
+                    "group": "loki",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "direction": "backward",
+                      "editorMode": "code",
+                      "expr": "sum by (status) (count_over_time({job=\"docker\", container=\"traefik\"} | path=~\".+\" [$__interval]))",
+                      "legendFormat": "{{status}}",
+                      "queryType": "range"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "A"
+                }
+              }
+            ],
+            "queryOptions": {
+              "interval": "1m"
+            },
+            "transformations": []
+          }
+        },
+        "description": "",
+        "id": 44,
+        "links": [],
+        "title": "Hits by status",
+        "transparent": true,
+        "vizConfig": {
+          "group": "timeseries",
+          "kind": "VizConfig",
+          "spec": {
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "barWidthFactor": 0.6,
+                  "drawStyle": "line",
+                  "fillOpacity": 20,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "showValues": false,
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "normal"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short"
+              },
+              "overrides": []
+            },
+            "options": {
+              "annotations": {
+                "clustering": -1,
+                "multiLane": false
+              },
+              "legend": {
+                "calcs": [
+                  "sum"
+                ],
+                "displayMode": "table",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "hideZeros": false,
+                "mode": "multi",
+                "sort": "desc"
+              }
+            }
+          },
+          "version": "13.0.1+security-01"
+        }
+      }
+    },
+    "panel-45": {
+      "kind": "Panel",
+      "spec": {
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "P8E80F9AEF21F6940"
+                    },
+                    "group": "loki",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "expr": "sum by (container) (count_over_time({job=\"docker\"} [$__interval]))",
+                      "legendFormat": "{{container}}"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "A"
+                }
+              }
+            ],
+            "queryOptions": {
+              "interval": "1m"
+            },
+            "transformations": []
+          }
+        },
+        "description": "",
+        "id": 45,
+        "links": [],
+        "title": "Hits by container",
+        "transparent": true,
+        "vizConfig": {
+          "group": "timeseries",
+          "kind": "VizConfig",
+          "spec": {
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisBorderShow": false,
+                  "axisCenteredZero": false,
+                  "axisColorMode": "text",
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "barWidthFactor": 0.6,
+                  "drawStyle": "line",
+                  "fillOpacity": 20,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                  },
+                  "insertNulls": false,
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "never",
+                  "showValues": false,
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "normal"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "short"
+              },
+              "overrides": []
+            },
+            "options": {
+              "annotations": {
+                "clustering": -1,
+                "multiLane": false
+              },
+              "legend": {
+                "calcs": [
+                  "sum"
+                ],
+                "displayMode": "table",
+                "placement": "bottom",
+                "showLegend": true
+              },
+              "tooltip": {
+                "hideZeros": false,
+                "mode": "multi",
+                "sort": "desc"
+              }
+            }
+          },
+          "version": "13.0.1+security-01"
+        }
+      }
+    },
     "panel-5": {
       "kind": "Panel",
       "spec": {
@@ -1096,150 +1343,216 @@
     }
   },
   "layout": {
-    "kind": "GridLayout",
+    "kind": "RowsLayout",
     "spec": {
-      "items": [
+      "rows": [
         {
-          "kind": "GridLayoutItem",
+          "kind": "RowsLayoutRow",
           "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-32"
+            "collapse": false,
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-32"
+                      },
+                      "height": 2,
+                      "width": 24,
+                      "x": 0,
+                      "y": 0
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-4"
+                      },
+                      "height": 4,
+                      "width": 6,
+                      "x": 0,
+                      "y": 2
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-5"
+                      },
+                      "height": 8,
+                      "width": 9,
+                      "x": 6,
+                      "y": 2
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-19"
+                      },
+                      "height": 4,
+                      "width": 4,
+                      "x": 15,
+                      "y": 2
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-36"
+                      },
+                      "height": 4,
+                      "width": 5,
+                      "x": 19,
+                      "y": 2
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-22"
+                      },
+                      "height": 4,
+                      "width": 6,
+                      "x": 0,
+                      "y": 6
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-8"
+                      },
+                      "height": 4,
+                      "width": 8,
+                      "x": 15,
+                      "y": 6
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-33"
+                      },
+                      "height": 8,
+                      "width": 8,
+                      "x": 0,
+                      "y": 10
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-43"
+                      },
+                      "height": 8,
+                      "width": 15,
+                      "x": 8,
+                      "y": 10
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-11"
+                      },
+                      "height": 11,
+                      "width": 24,
+                      "x": 0,
+                      "y": 18
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-40"
+                      },
+                      "height": 8,
+                      "width": 12,
+                      "x": 0,
+                      "y": 29
+                    }
+                  }
+                ]
+              }
             },
-            "height": 2,
-            "width": 24,
-            "x": 0,
-            "y": 0
+            "title": "New row"
           }
         },
         {
-          "kind": "GridLayoutItem",
+          "kind": "RowsLayoutRow",
           "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-4"
+            "collapse": false,
+            "layout": {
+              "kind": "AutoGridLayout",
+              "spec": {
+                "columnWidthMode": "standard",
+                "items": [
+                  {
+                    "kind": "AutoGridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-44"
+                      }
+                    }
+                  }
+                ],
+                "maxColumnCount": 3,
+                "rowHeightMode": "standard"
+              }
             },
-            "height": 4,
-            "width": 6,
-            "x": 0,
-            "y": 2
+            "title": "New row 1"
           }
         },
         {
-          "kind": "GridLayoutItem",
+          "kind": "RowsLayoutRow",
           "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-5"
+            "collapse": false,
+            "layout": {
+              "kind": "AutoGridLayout",
+              "spec": {
+                "columnWidthMode": "standard",
+                "items": [
+                  {
+                    "kind": "AutoGridLayoutItem",
+                    "spec": {
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "panel-45"
+                      }
+                    }
+                  }
+                ],
+                "maxColumnCount": 3,
+                "rowHeightMode": "standard"
+              }
             },
-            "height": 8,
-            "width": 9,
-            "x": 6,
-            "y": 2
-          }
-        },
-        {
-          "kind": "GridLayoutItem",
-          "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-19"
-            },
-            "height": 4,
-            "width": 4,
-            "x": 15,
-            "y": 2
-          }
-        },
-        {
-          "kind": "GridLayoutItem",
-          "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-36"
-            },
-            "height": 4,
-            "width": 5,
-            "x": 19,
-            "y": 2
-          }
-        },
-        {
-          "kind": "GridLayoutItem",
-          "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-22"
-            },
-            "height": 4,
-            "width": 6,
-            "x": 0,
-            "y": 6
-          }
-        },
-        {
-          "kind": "GridLayoutItem",
-          "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-8"
-            },
-            "height": 4,
-            "width": 8,
-            "x": 15,
-            "y": 6
-          }
-        },
-        {
-          "kind": "GridLayoutItem",
-          "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-33"
-            },
-            "height": 8,
-            "width": 8,
-            "x": 0,
-            "y": 10
-          }
-        },
-        {
-          "kind": "GridLayoutItem",
-          "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-43"
-            },
-            "height": 8,
-            "width": 15,
-            "x": 8,
-            "y": 10
-          }
-        },
-        {
-          "kind": "GridLayoutItem",
-          "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-11"
-            },
-            "height": 11,
-            "width": 24,
-            "x": 0,
-            "y": 18
-          }
-        },
-        {
-          "kind": "GridLayoutItem",
-          "spec": {
-            "element": {
-              "kind": "ElementReference",
-              "name": "panel-40"
-            },
-            "height": 8,
-            "width": 12,
-            "x": 0,
-            "y": 29
+            "title": "New row 2"
           }
         }
       ]
@@ -1281,20 +1594,26 @@
         "baseFilters": [],
         "defaultKeys": [],
         "enableGroupBy": false,
-        "filters": [
-          {
-            "condition": "",
-            "key": "status",
-            "keyLabel": "status",
-            "operator": "=",
-            "value": "200",
-            "valueLabels": [
-              "200"
-            ]
-          }
-        ],
+        "filters": [],
         "hide": "dontHide",
         "name": "Filter",
+        "skipUrlSync": false
+      }
+    },
+    {
+      "datasource": {
+        "name": "P8E80F9AEF21F6940"
+      },
+      "group": "loki",
+      "kind": "AdhocVariable",
+      "spec": {
+        "allowCustomValue": true,
+        "baseFilters": [],
+        "defaultKeys": [],
+        "enableGroupBy": false,
+        "filters": [],
+        "hide": "dontHide",
+        "name": "Filter2",
         "skipUrlSync": false
       }
     }

@@ -14,13 +14,19 @@
     - compose.yaml.j2
     - grafana.ini
     - loki-config.yml
-    - alloy-config.alloy
     - prometheus.yml
     - alertmanager.yml
     - alerts.yml
     - .env.j2
     - provisioning/datasources/datasource.yml
   register: monitoring_config
+
+- name: Copy alloy config to monitoring
+  copy:
+    src: alloy-config.alloy
+    dest: "{{ app_path }}/monitoring/alloy-config.alloy"
+    owner: "{{ ansible_user }}"
+    mode: "0644"
 
 - name: Stop monitoring
   community.docker.docker_compose_v2:

@@ -7,6 +7,9 @@
 // - Parses Traefik's JSON access logs into indexed labels (low cardinality)
 //   and structured metadata (high cardinality, queryable but not indexed).
 // - Ships everything to Loki.
+//
+// NOTE: this file is deployed with ansible `copy` (not `template`) because it
+// contains Alloy `{{ ... }}` template syntax that Jinja must not touch.
 // =============================================================================
 
 // -----------------------------------------------------------------------------
@@ -81,35 +84,51 @@ loki.process "pipeline" {
   // so each access log line is a JSON object. Traefik's own service logs are
   // plain text; because `drop_malformed` defaults to false those lines simply
   // pass through this stage untouched.
+  //
+  // Traefik emits header fields using Go's canonical header casing, so the
+  // CF-Connecting-IP header shows up as `request_Cf-Connecting-Ip` (not
+  // `request_CF-Connecting-IP`). Both spellings are tried below.
   // ---------------------------------------------------------------------------
   stage.match {
     selector = "{job=\"docker\", container=\"traefik\"}"
 
     stage.json {
       expressions = {
-        client_host   = "ClientHost",
-        client_addr   = "ClientAddr",
-        method        = "RequestMethod",
-        path          = "RequestPath",
-        host          = "RequestHost",
-        protocol      = "RequestProtocol",
-        scheme        = "RequestScheme",
-        status        = "DownstreamStatus",
-        origin_status = "OriginStatus",
-        duration_ns   = "Duration",
-        router        = "RouterName",
-        service       = "ServiceName",
-        user_agent    = "\"request_User-Agent\"",
-        referer       = "\"request_Referer\"",
-        start_utc     = "StartUTC",
+        client_host       = "ClientHost",
+        client_addr       = "ClientAddr",
+        cf_connecting_ip  = "\"request_Cf-Connecting-Ip\"",
+        cf_connecting_ip2 = "\"request_CF-Connecting-IP\"",
+        xff               = "\"request_X-Forwarded-For\"",
+        method            = "RequestMethod",
+        path              = "RequestPath",
+        host              = "RequestHost",
+        protocol          = "RequestProtocol",
+        scheme            = "RequestScheme",
+        status            = "DownstreamStatus",
+        origin_status     = "OriginStatus",
+        duration_ns       = "Duration",
+        router            = "RouterName",
+        service           = "ServiceName",
+        user_agent        = "\"request_User-Agent\"",
+        referer           = "\"request_Referer\"",
+        start_utc         = "StartUTC",
       }
+    }
+
+    // Real client IP: Cloudflare sets CF-Connecting-IP; when the request does
+    // not come through the CDN (header absent) fall back to the socket peer.
+    stage.template {
+      source   = "client_ip"
+      template = "{{ if .cf_connecting_ip }}{{ .cf_connecting_ip }}{{ else }}{{ if .cf_connecting_ip2 }}{{ .cf_connecting_ip2 }}{{ else }}{{ .client_host }}{{ end }}{{ end }}"
     }
 
     // High-cardinality values: queryable, but not indexed.
     stage.structured_metadata {
       values = {
-        client_ip     = "client_host",
+        client_ip     = "",
+        client_host   = "client_host",
         client_addr   = "client_addr",
+        xff           = "xff",
         path          = "",
         host          = "",
         protocol      = "",
