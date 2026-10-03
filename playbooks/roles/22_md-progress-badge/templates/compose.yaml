@@ -6,7 +6,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=${TRAEFIK_NETWORK}"
       - "traefik.http.routers.md-progress-badge.rule=Host(`md-badge.${DOMAIN}`)"
-      - "traefik.http.routers.md-progress-badge.middlewares=md-progress-badge-strip"
+      - "traefik.http.routers.md-progress-badge.middlewares=md-progress-badge-strip,crowdsec@docker"
       - "traefik.http.middlewares.md-progress-badge-strip.stripprefix.prefixes=/progress"
       - "traefik.http.routers.md-progress-badge.entrypoints=websecure"
       - "traefik.http.services.md-progress-badge.loadbalancer.server.port=1983"

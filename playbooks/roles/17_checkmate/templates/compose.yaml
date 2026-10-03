@@ -17,6 +17,7 @@ services:
       - "traefik.http.routers.checkmate.entrypoints=websecure"
       - "traefik.http.services.checkmate.loadbalancer.server.port=52345"
       - "traefik.http.routers.checkmate.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.checkmate.middlewares=crowdsec@docker"
     networks:
       - traefik
       - internal

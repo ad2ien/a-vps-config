@@ -24,6 +24,7 @@ services:
       - "traefik.http.routers.help-the-stars.entrypoints=websecure"
       - "traefik.http.services.help-the-stars.loadbalancer.server.port=1983"
       - "traefik.http.routers.help-the-stars.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.help-the-stars.middlewares=crowdsec@docker"
 volumes:
   help-the-stars:
 

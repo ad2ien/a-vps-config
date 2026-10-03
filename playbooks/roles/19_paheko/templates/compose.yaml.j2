@@ -15,6 +15,7 @@ services:
       - "traefik.http.routers.paheko-{{ tenant }}.entrypoints=websecure"
       - "traefik.http.services.paheko-{{ tenant }}.loadbalancer.server.port=80"
       - "traefik.http.routers.paheko-{{ tenant }}.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.paheko-{{ tenant }}.middlewares=crowdsec@docker"
 
 volumes:
   "db":

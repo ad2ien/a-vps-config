@@ -12,6 +12,7 @@ services:
       - "traefik.http.services.dockhand.loadbalancer.server.port=3000"
       - "traefik.http.routers.dockhand.tls=true"
       - "traefik.http.routers.dockhand.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.dockhand.middlewares=crowdsec@docker"
 
 volumes:
   dockhand_data:

@@ -1,5 +1,5 @@
 x-dolibarr: &dolibarr
-  image: dolibarr/dolibarr:23.0.3
+  image: dolibarr/dolibarr:24.0.0
   volumes:
     - custom:/var/www/html/custom
     - documents:/var/www/documents
@@ -38,6 +38,7 @@ services:
       - "traefik.http.routers.dolibarr-{{ tenant }}.entrypoints=websecure"
       - "traefik.http.services.dolibarr-{{ tenant }}.loadbalancer.server.port=80"
       - "traefik.http.routers.dolibarr-{{ tenant }}.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dolibarr-{{ tenant }}.middlewares=crowdsec@docker"
     networks:
       - traefik
       - internal

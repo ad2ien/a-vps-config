@@ -46,7 +46,7 @@ services:
       - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
       - "traefik.http.routers.nextcloud.tls=true"
       - "traefik.http.routers.nextcloud.tls.certresolver=letsencrypt-dns"
-      - "traefik.http.routers.nextcloud.middlewares=nextcloud-redirectregex"
+      - "traefik.http.routers.nextcloud.middlewares=nextcloud-redirectregex,crowdsec@docker"
       - "traefik.http.middlewares.nextcloud-redirectregex.redirectregex.permanent=true"
       - "traefik.http.middlewares.nextcloud-redirectregex.redirectregex.regex=https://(.*)/.well-known/(?:card|cal)dav"
       - "traefik.http.middlewares.nextcloud-redirectregex.redirectregex.replacement=https://$${1}/remote.php/dav"
@@ -73,7 +73,8 @@ services:
       - "traefik.http.routers.nextcloud-talk.entrypoints=websecure"
       - "traefik.http.services.nextcloud-talk.loadbalancer.server.port=8081"
       - "traefik.http.routers.nextcloud-talk.tls=true"
-      - "traefik.http.routers.nextcloud-talk.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.nextcloud-talk.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.nextcloud-talk.middlewares=crowdsec@docker"
     networks:
       - traefik
 

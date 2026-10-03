@@ -16,6 +16,7 @@ services:
       - "traefik.http.routers.moodle.entrypoints=websecure"
       - "traefik.http.services.moodle.loadbalancer.server.port=80"
       - "traefik.http.routers.moodle.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.moodle.middlewares=crowdsec@docker"
     networks:
       - traefik
       - internal

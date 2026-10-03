@@ -30,6 +30,7 @@ services:
       - "traefik.http.routers.n8n-{{ tenant }}.entrypoints=websecure"
       - "traefik.http.services.n8n-{{ tenant }}.loadbalancer.server.port=5678"
       - "traefik.http.routers.n8n-{{ tenant }}.tls.certresolver=letsencrypt{{ (tenant == default_tenant) | ternary('-dns', '' ) }}"
+      - "traefik.http.routers.n8n-{{ tenant }}.middlewares=crowdsec@docker"
     networks:
       - traefik
       - internal

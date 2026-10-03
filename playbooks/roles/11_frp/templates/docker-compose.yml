@@ -13,11 +13,12 @@ services:
       - "traefik.http.routers.frps-monitor.entrypoints=websecure"
       - "traefik.http.services.frps-monitor.loadbalancer.server.port={{frps_webserver_port}}"
       - "traefik.http.routers.frps-monitor.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.frps-monitor.middlewares=crowdsec@docker"
       - "traefik.http.routers.frps1.rule=Host(`{{frps_subdomain}}.${DOMAIN}`)"
       - "traefik.http.routers.frps1.entrypoints=websecure"
       - "traefik.http.services.frps1.loadbalancer.server.port={{vhost_frps_port}}"
       - "traefik.http.routers.frps1.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.frps1.middlewares=basicauth1"
+      - "traefik.http.routers.frps1.middlewares=basicauth1,crowdsec@docker"
       - "traefik.http.middlewares.basicauth1.basicauth.users={{frps_basic_auth}}"
 networks:
   default:

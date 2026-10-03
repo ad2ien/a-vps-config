@@ -13,6 +13,7 @@ services:
       - "traefik.http.routers.continuwuity.service=continuwuity"
       - "traefik.http.services.continuwuity.loadbalancer.server.port=8008"
       - "traefik.http.routers.continuwuity.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.continuwuity.middlewares=crowdsec@docker"
     environment:
       CONTINUWUITY_SERVER_NAME: "{{messaging_sub_domain}}.{{domain}}"
       CONTINUWUITY_DATABASE_PATH: /var/lib/continuwuity
@@ -36,6 +37,7 @@ services:
       - "traefik.http.services.element.loadbalancer.server.port=80"
       - "traefik.http.routers.element.tls=true"
       - "traefik.http.routers.element.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.element.middlewares=crowdsec@docker"
 
 volumes:
   db-conduwuit:

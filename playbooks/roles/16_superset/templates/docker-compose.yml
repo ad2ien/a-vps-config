@@ -45,6 +45,7 @@ services:
       - "traefik.http.routers.{{ superset_sub_domain }}.entrypoints=websecure"
       - "traefik.http.services.{{ superset_sub_domain }}.loadbalancer.server.port=8088"
       - "traefik.http.routers.{{ superset_sub_domain }}.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.{{ superset_sub_domain }}.middlewares=crowdsec@docker"
     networks:
       - traefik
       - internal

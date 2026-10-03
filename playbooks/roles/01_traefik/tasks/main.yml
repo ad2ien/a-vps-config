@@ -1,7 +1,7 @@
 ---
 - name: Create traefik directory if it doesn't exist
   file:
-    path: "{{ app_path }}/traefik"
+    path: "{{ app_path }}/traefik/crowdsec"
     state: directory
 
 - name: Copy traefik template files to traefik
@@ -14,6 +14,7 @@
     - traefik.yml.j2
     - dynamic.yml.j2
     - .env.j2
+    - crowdsec/appsec.yaml
   register: traefik_config
 
 - name: Stop Traefik
