@@ -17,11 +17,18 @@
     - crowdsec/appsec.yaml
   register: traefik_config
 
+- name: Copy CrowdSec Cloudflare whitelist
+  copy:
+    src: crowdsec/whitelist-cloudflare.yaml
+    dest: "{{ app_path }}/traefik/crowdsec/whitelist-cloudflare.yaml"
+    mode: "0644"
+  register: traefik_whitelist
+
 - name: Stop Traefik
   community.docker.docker_compose_v2:
     project_src: "{{ app_path }}/traefik"
     state: absent
-  when: traefik_config.changed
+  when: traefik_config.changed or traefik_whitelist.changed
 
 - name: Start Traefik
   community.docker.docker_compose_v2:
