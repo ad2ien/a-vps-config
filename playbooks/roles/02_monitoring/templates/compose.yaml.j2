@@ -102,6 +102,7 @@ services:
     image: grafana/loki:3.7.8
     volumes:
       - ./loki-config.yml:/etc/loki/loki-config.yml:ro
+      - loki_data:/loki
     expose:
       - 3100
     restart: unless-stopped
@@ -110,9 +111,10 @@ services:
       - internal
 
 volumes:
-  prometheus_data: {}
+  prometheus_data:
   grafana_data:
   alloy_data:
+  loki_data:
 
 networks:
   internal:

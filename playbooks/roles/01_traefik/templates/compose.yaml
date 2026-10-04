@@ -6,7 +6,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      # - "8080:8080"
+      - "127.0.0.1:8080:8080"
     # Cap the Docker json-file logs now that access logs go to stdout.
     logging:
       driver: json-file
@@ -25,13 +25,6 @@ services:
       - CF_DNS_API_TOKEN=$CF_DNS_API_TOKEN
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`)"
-      - "traefik.http.routers.dashboard.entrypoints=websecure"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.tls=true"
-      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.dashboard.middlewares=authtraefik,crowdsec@docker"
-      - "traefik.http.middlewares.authtraefik.basicauth.users={{standard_basic_auth}}"
       # CrowdSec bouncer + AppSec middleware (key comes from .env)
       - "traefik.http.middlewares.crowdsec.plugin.bouncer.enabled=true"
       - "traefik.http.middlewares.crowdsec.plugin.bouncer.crowdsecMode=stream"
