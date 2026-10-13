@@ -28,11 +28,19 @@
     owner: "{{ ansible_user }}"
     mode: "0644"
 
+- name: Copy Loki alert rules to monitoring
+  copy:
+    src: loki-rules/
+    dest: "{{ app_path }}/monitoring/loki-rules/"
+    owner: "{{ ansible_user }}"
+    mode: "0644"
+  register: loki_rules
+
 - name: Stop monitoring
   community.docker.docker_compose_v2:
     project_src: "{{ app_path }}/monitoring"
     state: absent
-  when: monitoring_config.changed
+  when: monitoring_config.changed or loki_rules.changed or grafana_dashboards.changed
 
 - name: Start monitoring
   community.docker.docker_compose_v2:

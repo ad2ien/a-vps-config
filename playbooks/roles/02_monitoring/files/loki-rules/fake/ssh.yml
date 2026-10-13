@@ -1,0 +1,16 @@
+# Loki ruler alert rules for SSH activity (LogQL, evaluated by Loki and routed
+# to Alertmanager). This cannot live in the Prometheus alerts.yml, which only
+# understands PromQL.
+groups:
+  - name: ssh
+    interval: 1m
+    rules:
+      - alert: SSHSuccessfulLogin
+        expr: |
+          sum(count_over_time({job="varlogs"} |~ `sshd.*Accepted (publickey|password)` [2m])) > 0
+        for: 0m
+        labels:
+          severity: info
+        annotations:
+          summary: "SSH login succeeded"
+          description: "A successful SSH authentication was detected."
