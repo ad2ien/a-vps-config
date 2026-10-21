@@ -1,0 +1,4 @@
+name: custom/block-got-ua-config
+default_remediation: ban
+inband_rules:
+  - custom/block-got-ua

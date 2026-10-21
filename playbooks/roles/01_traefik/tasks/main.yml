@@ -24,13 +24,56 @@
     mode: "0644"
   register: traefik_whitelist
 
-- name: Stop Traefik
-  community.docker.docker_compose_v2:
-    project_src: "{{ app_path }}/traefik"
-    state: absent
-  when: traefik_config.changed or traefik_whitelist.changed
+- name: Create CrowdSec custom config directories
+  ansible.builtin.file:
+    path: "{{ app_path }}/traefik/crowdsec/config/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - appsec-rules/custom
+    - appsec-configs/custom
 
-- name: Start Traefik
+- name: Copy CrowdSec custom AppSec rules and configs
+  ansible.builtin.copy:
+    src: "crowdsec/{{ item }}"
+    dest: "{{ app_path }}/traefik/crowdsec/config/{{ item }}"
+    mode: "0644"
+  loop:
+    - appsec-rules/custom/block-got-ua.yaml
+    - appsec-configs/custom/block-got-ua.yaml
+  register: crowdsec_custom_rules
+
+- name: Remove legacy .yml copies of CrowdSec custom rules
+  ansible.builtin.file:
+    path: "{{ app_path }}/traefik/crowdsec/config/{{ item }}"
+    state: absent
+  loop:
+    - appsec-rules/custom/block-got-ua.yml
+    - appsec-configs/custom/block-got-ua.yml
+
+- name: Check whether CrowdSec container exists
+  ansible.builtin.command: docker inspect crowdsec
+  register: crowdsec_inspect
+  changed_when: false
+  failed_when: false
+
+- name: Restart CrowdSec to load custom AppSec rules
   community.docker.docker_compose_v2:
     project_src: "{{ app_path }}/traefik"
-    state: present
+    services:
+      - crowdsec
+    state: restarted
+  when:
+    - crowdsec_custom_rules.changed or traefik_config.changed
+    - crowdsec_inspect.rc == 0
+
+# - name: Stop Traefik
+#   community.docker.docker_compose_v2:
+#     project_src: "{{ app_path }}/traefik"
+#     state: absent
+#   when: traefik_config.changed or traefik_whitelist.changed
+#
+# - name: Start Traefik
+#   community.docker.docker_compose_v2:
+#     project_src: "{{ app_path }}/traefik"
+#     state: present

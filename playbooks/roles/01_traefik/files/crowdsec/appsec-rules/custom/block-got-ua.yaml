@@ -1,0 +1,5 @@
+name: custom/block-got-ua
+description: "Block the got HTTP client user-agent (github.com/sindresorhus/got)"
+seclang_rules:
+  - |
+    SecRule REQUEST_HEADERS:User-Agent "@contains got (https://github.com/sindresorhus/got)" "id:1000001,phase:1,deny,status:403,log,msg:'Blocked got user-agent'"
