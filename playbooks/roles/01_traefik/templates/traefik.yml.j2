@@ -35,7 +35,7 @@ entryPoints:
     address: :443
 
   metrics:
-    address: ":8080"
+    address: ":{{ traefik_metrics_port }}"
 
 certificatesResolvers:
   letsencrypt:
@@ -147,7 +147,7 @@ api:
   # Optional
   # Default: false
   #
-#  insecure: true
+  insecure: true
 
   # Enabled Dashboard
   #
