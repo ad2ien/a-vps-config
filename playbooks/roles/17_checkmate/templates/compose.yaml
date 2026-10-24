@@ -1,6 +1,6 @@
 services:
   checkmate:
-    image: ghcr.io/bluewave-labs/checkmate-backend-mono:v3.8.1
+    image: ghcr.io/bluewave-labs/checkmate-backend-mono:v3.13.1
     restart: unless-stopped
     environment:
       - UPTIME_APP_API_BASE_URL=https://{{ checkmate_domain }}.${DOMAIN}/api/v1
@@ -8,6 +8,7 @@ services:
       - DB_CONNECTION_STRING=mongodb://${MONGO_USER}:${MONGO_PW}@mongodb:27017/uptime_db?authSource=admin
       - CLIENT_HOST=https://{{ checkmate_domain }}.${DOMAIN}
       - JWT_SECRET={{ checkmate_jwt_secret }}
+        TELEMETRY_ENABLED=false
     depends_on:
       - mongodb
     labels:

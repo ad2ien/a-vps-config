@@ -1,6 +1,8 @@
 appsec_configs:
   - crowdsecurity/appsec-default
-  - custom/block-got-ua-config
+  # Deactivated: the `got` HTTP client is now used by checkmate for uptime
+  # probes, so blocking that user-agent breaks its checks.
+  # - custom/block-got-ua-config
 labels:
   type: appsec
 listen_addr: 0.0.0.0:7422
