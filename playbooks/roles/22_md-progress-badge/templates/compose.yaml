@@ -10,7 +10,7 @@ services:
       - "traefik.http.middlewares.md-progress-badge-strip.stripprefix.prefixes=/progress"
       - "traefik.http.routers.md-progress-badge.entrypoints=websecure"
       - "traefik.http.services.md-progress-badge.loadbalancer.server.port=1983"
-      - "traefik.http.routers.md-progress-badge.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.md-progress-badge.tls.certresolver=letsencrypt"
 
 networks:
   default:

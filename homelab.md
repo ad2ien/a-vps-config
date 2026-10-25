@@ -4,7 +4,6 @@
 graph TD
     subgraph internet["🌍 Internet"]
         users["👤 External Users"]
-        dns["🌐 DNS<br/>Cloudflare"]
     end
     
     subgraph vps["🖥️ VPS (public)"]
@@ -19,8 +18,7 @@ graph TD
         docker_private_stacks["🐳 Docker Services"]
     end
     
-    users -->|HTTPS| dns
-    dns -->|Route| traefik_vps
+    users -->|HTTPS| traefik_vps
     traefik_vps --> docker_stacks
     wg_server -->|Encrypted Tunnel| wg_client
     traefik_vps -->|Forward HTTP<br/>sub domain| traefik_private

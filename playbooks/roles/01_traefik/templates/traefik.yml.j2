@@ -48,16 +48,6 @@ certificatesResolvers:
         entryPoint: web
       tlschallenge: true
 
-  letsencrypt-dns:
-    acme:
-      email: {{ admin_email }}
-      storage: /etc/traefik/certs/acme-dns.json
-      dnsChallenge:
-        provider: cloudflare
-        resolvers:
-          - "1.1.1.1:53"
-          - "8.8.8.8:53"
-
   letsencrypt-staging:
     acme:
       email: {{ admin_email }}
@@ -196,9 +186,9 @@ providers:
     # Default: true
     #
     exposedByDefault: false
-  file:
-    filename: /etc/traefik/dynamic.yml
-    watch: true
+#  file:
+#    filename: /etc/traefik/dynamic.yml
+#    watch: true
 
 metrics:
   prometheus:

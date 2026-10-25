@@ -24,7 +24,7 @@ services:
       - "traefik.http.routers.motioneye-{{ tenant }}.rule=Host(`{{ motioneye_subdomain }}{{ (tenant == default_tenant) | ternary('', '.' + tenant ) }}.{{ domain }}`)"
       - "traefik.http.routers.motioneye-{{ tenant }}.entrypoints=websecure"
       - "traefik.http.services.motioneye-{{ tenant }}.loadbalancer.server.port=8765"
-      - "traefik.http.routers.motioneye-{{ tenant }}.tls.certresolver=letsencrypt{{ (tenant == default_tenant) | ternary('-dns', '' ) }}"
+      - "traefik.http.routers.motioneye-{{ tenant }}.tls.certresolver=letsencrypt"
       - "traefik.http.routers.motioneye-{{ tenant }}.middlewares=crowdsec@docker"
     networks:
       - traefik

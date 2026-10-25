@@ -1,0 +1,35 @@
+---
+- name: Create CrowdSec custom config directories
+  ansible.builtin.file:
+    path: "{{ app_path }}/traefik/crowdsec/config/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - appsec-rules/custom
+    - appsec-configs/custom
+
+- name: Copy CrowdSec custom AppSec rules and configs
+  ansible.builtin.copy:
+    src: "crowdsec/{{ item }}"
+    dest: "{{ app_path }}/traefik/crowdsec/config/{{ item }}"
+    mode: "0644"
+  loop:
+    - appsec-rules/custom/block-got-ua.yaml
+    - appsec-configs/custom/block-got-ua.yaml
+  register: crowdsec_custom_rules
+
+- name: Check whether CrowdSec container exists
+  ansible.builtin.command: docker inspect crowdsec
+  register: crowdsec_inspect
+  changed_when: false
+  failed_when: false
+
+- name: Restart CrowdSec to load custom AppSec rules
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_path }}/traefik"
+    services:
+      - crowdsec
+    state: restarted
+  when:
+    - crowdsec_custom_rules.changed or traefik_config.changed
+    - crowdsec_inspect.rc == 0
