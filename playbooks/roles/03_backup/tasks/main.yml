@@ -1,63 +1,55 @@
 ---
-- name: Create /srv/backup
+- name: Create backup folder
   file:
-    path: /{{ app_path }}/backup
+    path: "{{ app_path }}/backup"
     state: directory
   register: stack_folder
 
-- name: init volume backup
-  shell: |
-    "alias stackrestic="source .env && docker run \
-    -v ${HOST_STACK_CONF_PATH}:/backup-repo \
-    -v ./rclone.conf:/root/.config/rclone/rclone.conf:ro \
-    -e RESTIC_REPOSITORY=rclone:${RCLONE_CONFIGURATION_NAME}:${PCLOUD_STACK_REPO} \
-    -e RESTIC_PASSWORD=${RESTIC_PASSWORD} \
-    --rm --env-file .env mazzolino/restic:${IMAGE_VERSION}
+- name: Copy backup scripts
+  copy:
+    src: "{{ item }}"
+    dest: "{{ app_path }}/backup/{{ item }}"
+    mode: "0755"
+    owner: "{{ ansible_user }}"
+  loop:
+    - backup-logger.sh
+    - restic.sh
 
-    alias volumerestic="source .env && docker run \
-    -v ${HOST_SOURCE_BACKUP}:/backup-repo \
-    -v ./rclone.conf:/root/.config/rclone/rclone.conf:ro \
-    -e RESTIC_REPOSITORY=rclone:${RCLONE_CONFIGURATION_NAME}:${PCLOUD_REPO} \
-    -e RESTIC_PASSWORD=${RESTIC_PASSWORD} \
-    --rm --env-file .env mazzolino/restic:${IMAGE_VERSION}
-
-    stackrestic init
-    volumerestic init"
-  when: stack_folder.changed
-
-- name: Copy backup template files to /srv/backup
+- name: Copy backup template files to backup
   template:
     src: "{{ item }}"
-    dest: /srv/backup/{{ item | replace('.template', '') }}
+    dest: "{{ app_path }}/backup/{{ item | replace('.j2', '') }}"
     mode: "0644"
+    owner: "{{ ansible_user }}"
   loop:
-    - docker-compose.yml
+    - compose.yaml
     - rclone.conf
-    - .env.template
+    - .env.j2
   register: backup_config
 
-- name: Stop backup
-  community.docker.docker_compose_v2:
-    project_src: /srv/backup
-    state: absent
-  when: backup_config.changed
+- name: init volume backup
+  shell: |
+    # init is idempotent
+    cd "{{ app_path }}/backup"
+    ./restic.sh stack init
+    ./restic.sh volume init
+  when: stack_folder.changed
 
-- name: Start backup
-  community.docker.docker_compose_v2:
-    project_src: /srv/backup
-    state: present
-
-- name: Copy backup-logger.sh to /srv/backup
-  copy:
-    src: backup-logger.sh
-    dest: /srv/backup/backup-logger.sh
-    mode: "0755"
-  register: backup_logger
+# - name: Stop backup
+#   community.docker.docker_compose_v2:
+#     project_src: "{{ app_path }}/backup"
+#     state: absent
+#   when: backup_config.changed
+# 
+# - name: Start backup
+#   community.docker.docker_compose_v2:
+#     project_src: "{{ app_path }}/backup"
+#     state: present
 
 - name: Schedule backup-logger.sh to run at 4:30 AM
   ansible.builtin.cron:
     name: "Run backup logger"
     minute: "30"
     hour: "4"
-    job: "cd /srv/backup && bash backup-logger.sh"
+    job: "cd {{ app_path }}/backup && bash backup-logger.sh"
     user: root
