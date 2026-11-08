@@ -48,3 +48,5 @@
       tags: video
     - role: 22_md-progress-badge
       tags: md-progress-badge
+    - role: 23_hermes
+      tags: hermes
