@@ -1,0 +1,29 @@
+---
+- name: Create hermes path
+  file:
+    path: "{{ app_path }}/{{ tenant }}/hermes"
+    state: directory
+    mode: "0775"
+    owner: "{{ ansible_user  }}"
+
+- name: Copy template files to hermes
+  template:
+    src: "{{ item }}"
+    dest: "{{ app_path }}/{{ tenant }}/hermes/{{ item | replace('.j2', '') }}"
+    mode: "0644"
+    owner: "{{ ansible_user }}"
+  loop:
+    - compose.yaml
+    - .env.j2
+  register: hermes_config
+
+- name: Stop stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_path }}/{{ tenant }}/hermes"
+    state: absent
+  when: hermes_config.changed
+
+- name: Start stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_path }}/{{ tenant }}/hermes"
+    state: present
