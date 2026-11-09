@@ -2,12 +2,22 @@ events {
   worker_connections  4096;  ## Default: 1024
 }
 http{
+    # Docker's embedded DNS. ipv6=off makes nginx ignore AAAA records: this
+    # container has no IPv6 route, so an upstream that publishes an AAAA record
+    # always failed on that address before falling back to IPv4, paying a failed
+    # connect on every request.
+    resolver 127.0.0.11 ipv6=off valid=30s;
+    resolver_timeout 5s;
+
     server {
         listen 80;
         server_name {{ redirection_sub_domain_1 }}.{{ domain }};
 
         location / {
-            proxy_pass https://{{ redirection_url_1 }};
+            set $upstream_1 https://{{ redirection_url_1 }};
+            proxy_pass $upstream_1$request_uri;
+            proxy_ssl_server_name on;
+            proxy_ssl_name {{ redirection_url_1 }};
             proxy_ssl_verify off;
             proxy_set_header Host {{ redirection_url_1 }};
             proxy_set_header X-Real-IP $remote_addr;
@@ -21,7 +31,10 @@ http{
         server_name {{ redirection_sub_domain_3 }}.{{ domain }};
 
         location / {
-            proxy_pass https://{{ redirection_url_3 }};
+            set $upstream_3 https://{{ redirection_url_3 }};
+            proxy_pass $upstream_3$request_uri;
+            proxy_ssl_server_name on;
+            proxy_ssl_name {{ redirection_url_3 }};
             proxy_ssl_verify off;
             proxy_set_header Host {{ redirection_url_3 }};
             proxy_set_header X-Real-IP $remote_addr;
