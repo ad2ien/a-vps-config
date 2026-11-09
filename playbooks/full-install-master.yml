@@ -18,8 +18,6 @@
       tags: dockhand
     - role: 05_nextcloud
       tags: nextcloud
-    - role: 06_wireguard
-      tags: wireguard,vpn
     - role: 07_messaging
       tags: messaging
     - role: 09_redirect
