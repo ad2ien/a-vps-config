@@ -86,3 +86,18 @@
   file:
     path: "{{ app_path }}"
     state: directory
+
+- name: Install apt upgrade script
+  ansible.builtin.copy:
+    src: apt-upgrade.sh
+    dest: /usr/local/bin/apt-upgrade.sh
+    mode: "0755"
+
+- name: Schedule weekly apt upgrade
+  ansible.builtin.cron:
+    name: "Weekly apt upgrade"
+    minute: "30"
+    hour: "4"
+    weekday: "0"
+    job: /usr/local/bin/apt-upgrade.sh
+    user: root
