@@ -64,12 +64,6 @@ matrix_username:
 matrix_password:
 matrix_roomid:
 
-superset_srv_path:
-superset_sub_domain:
-superset_image:
-superset_db_pw:
-superset_secret_key:
-
 checkmate_domain:
 checkmate_jwt_secret:
 checkmate_mongo_user:

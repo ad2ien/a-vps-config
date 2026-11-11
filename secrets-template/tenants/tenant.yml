@@ -7,3 +7,9 @@ dolibarr_db_pw:
 
 paheko_subdomain:
 paheko_secret:
+
+superset_subdomain:
+superset_db_pw:
+superset_secret_key:
+superset_admin_email:
+superset_admin_password:

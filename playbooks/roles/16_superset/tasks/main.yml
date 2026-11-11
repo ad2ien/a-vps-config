@@ -1,46 +1,27 @@
 ---
-- name: Create /srv/{{ superset_srv_path }}
+- name: Create superset path
   file:
-    path: "{{ app_path }}/{{ superset_srv_path }}"
+    path: "{{ app_path }}/{{ tenant }}/superset"
     state: directory
-    owner: "{{ linux_user }}"
+    mode: "0775"
 
-- name: Clone Apache Superset repository (tag 6.0.0)
-  ansible.builtin.git:
-    repo: https://github.com/apache/superset.git
-    single_branch: true
-    dest: ./tmp/superset
-    version: 6.0.0
-    depth: 1
-  delegate_to: localhost
-  become: false
-  run_once: true
-
-- name: Copy docker folder from local to remote
-  ansible.builtin.copy:
-    src: "./tmp/superset/docker/"
-    dest: "{{ app_path }}/{{ superset_srv_path }}/docker/"
-    mode: "0755"
-    owner: "{{ linux_user }}"
-
-- name: Copy template files to /srv/superset
+- name: Copy template files to superset
   template:
     src: "{{ item }}"
-    dest: "{{ app_path }}/{{ superset_srv_path }}/{{ item | replace('.template', '') }}"
+    dest: "{{ app_path }}/{{ tenant }}/superset/{{ item | replace('.j2', '') }}"
     mode: "0644"
-    owner: "{{ linux_user }}"
   loop:
-    - docker-compose.yml
-    - .env.template
+    - compose.yaml.j2
+    - .env.j2
   register: superset_config
 
 - name: Stop stack
   community.docker.docker_compose_v2:
-    project_src: "{{ app_path }}/{{ superset_srv_path }}"
+    project_src: "{{ app_path }}/{{ tenant }}/superset"
     state: absent
-  when: superset_config.changed or superset_config_docker.changed
+  when: superset_config.changed
 
 - name: Start stack
   community.docker.docker_compose_v2:
-    project_src: "{{ app_path }}/{{ superset_srv_path }}"
+    project_src: "{{ app_path }}/{{ tenant }}/superset"
     state: present
