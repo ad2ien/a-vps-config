@@ -1,0 +1,9 @@
+tenant:
+superset_subdomain:
+superset_db_pw:
+superset_secret_key:
+superset_admin_username: admin
+superset_admin_firstname: Superset
+superset_admin_lastname: Admin
+superset_admin_email:
+superset_admin_password:
