@@ -1,4 +1,4 @@
-name: wam-hermes
+name: "{{ tenant }}-hermes"
 services:
   gateway:
     image: nousresearch/hermes-agent
@@ -21,17 +21,15 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=${TRAEFIK_NETWORK}"
-      - "traefik.http.routers.hermes.rule=Host(`${SUB_DOMAIN}.${DOMAIN}`)"
-      - "traefik.http.routers.hermes.entrypoints=websecure"
-      - "traefik.http.services.hermes.loadbalancer.server.port=9119"
-      - "traefik.http.routers.hermes.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.hermes.middlewares=crowdsec@docker"
+      - "traefik.http.routers.hermes-{{ tenant }}.rule=Host(`${SUB_DOMAIN}.${DOMAIN}`)"
+      - "traefik.http.routers.hermes-{{ tenant }}.entrypoints=websecure"
+      - "traefik.http.services.hermes-{{ tenant }}.loadbalancer.server.port=9119"
+      - "traefik.http.routers.hermes-{{ tenant }}.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.hermes-{{ tenant }}.middlewares=crowdsec@docker"
     networks:
-      - internal
       - traefik
 
 networks:
-  internal:
   traefik:
     external: true
     name: ${TRAEFIK_NETWORK}

@@ -13,7 +13,7 @@
     mode: "0644"
     owner: "{{ ansible_user }}"
   loop:
-    - compose.yaml
+    - compose.yaml.j2
     - .env.j2
   register: hermes_config
 
