@@ -1,0 +1,33 @@
+# Loki ruler rule for the weekly apt upgrade, routed to Alertmanager.
+# The script appends one `apt-upgrade: status=...` line to /var/log/apt-upgrade.log,
+# which Alloy ships as job="varlogs".
+groups:
+  - name: apt
+    interval: 1m
+    rules:
+      - alert: AptUpgradeDone
+        expr: |
+          sum(count_over_time({job="varlogs"} |= `apt-upgrade: status=ok` != `reboot=yes` [10m])) > 0
+        labels:
+          severity: info
+        annotations:
+          summary: "Weekly apt upgrade completed"
+          description: "Packages were upgraded on the host, see /var/log/apt-upgrade.log."
+
+      - alert: AptRebootRequired
+        expr: |
+          sum(count_over_time({job="varlogs"} |= `apt-upgrade: status=ok` |= `reboot=yes` [10m])) > 0
+        labels:
+          severity: info
+        annotations:
+          summary: "Weekly apt upgrade completed, reboot required"
+          description: "Packages were upgraded and the host asks for a reboot."
+
+      - alert: AptUpgradeFailed
+        expr: |
+          sum(count_over_time({job="varlogs"} |= `apt-upgrade: status=failed` [10m])) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "Weekly apt upgrade failed"
+          description: "apt exited non-zero on the host, see /var/log/apt-upgrade.log."
