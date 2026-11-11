@@ -1,0 +1,35 @@
+name: "{{ tenant }}-hermes"
+services:
+  gateway:
+    image: nousresearch/hermes-agent
+    restart: unless-stopped
+    volumes:
+      - ./hermes-data:/opt/data
+    command: ["gateway", "run"]
+    environment:
+      API_SERVER_ENABLED: "true"
+      API_SERVER_HOST: "0.0.0.0"
+      API_SERVER_PORT: "8642"
+      API_SERVER_KEY: ${HERMES_API_KEY}
+      HERMES_DASHBOARD: "1"
+      HERMES_DASHBOARD_HOST: "0.0.0.0"
+      HERMES_DASHBOARD_PORT: "9119"
+      HERMES_DASHBOARD_PUBLIC_URL: "https://${SUB_DOMAIN}.${DOMAIN}"
+      HERMES_DASHBOARD_BASIC_AUTH_USERNAME: ${DASHBOARD_USER}
+      HERMES_DASHBOARD_BASIC_AUTH_PASSWORD: ${DASHBOARD_PASSWORD}
+      HERMES_DASHBOARD_BASIC_AUTH_SECRET: ${DASHBOARD_SECRET}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK}"
+      - "traefik.http.routers.hermes-{{ tenant }}.rule=Host(`${SUB_DOMAIN}.${DOMAIN}`)"
+      - "traefik.http.routers.hermes-{{ tenant }}.entrypoints=websecure"
+      - "traefik.http.services.hermes-{{ tenant }}.loadbalancer.server.port=9119"
+      - "traefik.http.routers.hermes-{{ tenant }}.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.hermes-{{ tenant }}.middlewares=crowdsec@docker"
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true
+    name: ${TRAEFIK_NETWORK}
