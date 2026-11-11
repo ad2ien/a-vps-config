@@ -1,6 +1,6 @@
 services:
   volumes-backup:
-    image: mazzolino/restic:${IMAGE_VERSION}
+    image: mazzolino/restic:1.8.2
     restart: unless-stopped
     environment:
       BACKUP_CRON: ${BACKUP_CRON}
@@ -14,7 +14,7 @@ services:
       - ${HOST_SOURCE_BACKUP}:/backup-repo
 
   stack-conf-backup:
-    image: mazzolino/restic:${IMAGE_VERSION}
+    image: mazzolino/restic:1.8.2
     restart: unless-stopped
     environment:
       BACKUP_CRON: ${BACKUP_CRON}

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    "schedule:weekly"
+  ],
+  "timezone": "Europe/Paris",
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "prConcurrentLimit": 3,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Docker images in ansible-templated compose files (Jinja breaks YAML parsing, so regex instead of the docker-compose manager)",
+      "managerFilePatterns": [
+        "/playbooks/roles/.*/templates/.*\\.ya?ml(\\.j2)?$/"
+      ],
+      "matchStrings": [
+        "image:\\s*\"?(?<depName>[^\"\\s]+?):(?!\\$\\{)(?<currentValue>[^\"\\s]+)\"?"
+      ],
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "restic image tag lives in an env var, not in the compose file",
+      "managerFilePatterns": [
+        "/playbooks/roles/03_backup/templates/\\.env\\.j2$/"
+      ],
+      "matchStrings": [
+        "IMAGE_VERSION=(?<currentValue>[^\\s]+)"
+      ],
+      "depNameTemplate": "mazzolino/restic",
+      "datasourceTemplate": "docker"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "groupName": "docker images",
+      "pinDigests": false
+    },
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true
+    }
+  ]
+}
