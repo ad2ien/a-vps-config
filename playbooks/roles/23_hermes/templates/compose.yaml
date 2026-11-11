@@ -11,32 +11,24 @@ services:
       API_SERVER_HOST: "0.0.0.0"
       API_SERVER_PORT: "8642"
       API_SERVER_KEY: ${HERMES_API_KEY}
-    networks:
-      - internal
-
-  open-webui:
-    image: ghcr.io/open-webui/open-webui:slim
-    container_name: open-webui
-    restart: unless-stopped
-    environment:
-      OPENAI_API_BASE_URL: http://gateway:8642/v1
-      OPENAI_API_KEY: ${HERMES_API_KEY}
-    volumes:
-      - open-webui:/app/backend/data
-    networks:
-      - internal
-      - traefik
+      HERMES_DASHBOARD: "1"
+      HERMES_DASHBOARD_HOST: "0.0.0.0"
+      HERMES_DASHBOARD_PORT: "9119"
+      HERMES_DASHBOARD_PUBLIC_URL: "https://${SUB_DOMAIN}.${DOMAIN}"
+      HERMES_DASHBOARD_BASIC_AUTH_USERNAME: ${DASHBOARD_USER}
+      HERMES_DASHBOARD_BASIC_AUTH_PASSWORD: ${DASHBOARD_PASSWORD}
+      HERMES_DASHBOARD_BASIC_AUTH_SECRET: ${DASHBOARD_SECRET}
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=${TRAEFIK_NETWORK}"
-      - "traefik.http.routers.hermess-wam.rule=Host(`${SUB_DOMAIN}.${DOMAIN}`)"
-      - "traefik.http.routers.hermess-wam.entrypoints=websecure"
-      - "traefik.http.services.hermess-wam.loadbalancer.server.port=8080"
-      - "traefik.http.routers.hermess-wam.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.hermess-wam.middlewares=crowdsec@docker"
-
-volumes:
-  open-webui:
+      - "traefik.http.routers.hermes.rule=Host(`${SUB_DOMAIN}.${DOMAIN}`)"
+      - "traefik.http.routers.hermes.entrypoints=websecure"
+      - "traefik.http.services.hermes.loadbalancer.server.port=9119"
+      - "traefik.http.routers.hermes.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.hermes.middlewares=crowdsec@docker"
+    networks:
+      - internal
+      - traefik
 
 networks:
   internal:
