@@ -63,3 +63,16 @@ $TOOL tag from there : [full-install-master.yml](./full-install-master.yml) or `
 ```bash
 ansible-playbook playbooks/full-install-master.yml -t ROLE -e @secrets/tenants/TENANT.yaml --diff --vault-password-file=vault-pw --check
 ```
+
+### Add a device to the private network
+
+Add the device to the `private_network_node` group (and `all`) in `secrets/inventory/hosts.yml`,
+create its `host_vars`, then re-run the tunnel play. It keeps the addresses of the peers already in
+`wg0.conf` and gives the new device the first free one:
+
+```bash
+ansible-playbook playbooks/wireguard.yml -i inventory/hosts.yml \
+  --limit "master,private_network_node" -t wireguard --vault-password-file=vault-pw --diff
+```
+
+`wg-quick@wg0` is enabled on both ends, so the tunnel comes up at boot.
